@@ -98,6 +98,17 @@ const sigmod = (x) => ({
   varbs: [x]
 });
 
+const square = (x) => ({
+  op: (v) => (v * v),
+  get diffs(){
+    if (!_.isArray(this._diffs)){
+      this._diffs = [mul(x, rhq.const(2))];
+    }
+    return this._diffs;
+  },
+  varbs: [x]
+});
+
 //二元函数
 const pow = (x, y) => ({
   op: (v1, v2) => (Math.pow(v1, v2)),
@@ -171,7 +182,7 @@ const sum = (...args) => {
   }
   let result = args[0];
   const len = args.length;
-  for(i = 1; i < len; i++){
+  for(let i = 1; i < len; i++){
     result = add(result, args[i]);
   }
   return result;

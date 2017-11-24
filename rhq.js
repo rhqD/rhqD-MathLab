@@ -29,7 +29,12 @@ rhq.generateValueFunc = (tensor, args) => {
   });
   return (...args) => {
     const genedFuncs = childFuncs.map(func => (func(...args)));
-    return tensor.op(...genedFuncs);
+    const result = tensor.op(...genedFuncs);
+    if (_.isNaN(result)){
+      console.log(tensor);
+      console.log(`args: ${genedFuncs}`);
+    }
+    return result;
   };
 };
 
