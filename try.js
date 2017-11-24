@@ -1,8 +1,11 @@
 
 const x = rhq.var();
 const y = rhq.var();
+const const2 = rhq.const(2);
 
-const yT = pow(x, y);
+const sinx = sin(x);
+const cosy = cos(y);
+const z = pow(sinx, cosy);
 
-const {v} = rhq.generate(yT, x, y);
-console.log(v(2, 3));
+const {v, d} = rhq.generate(x, x);
+console.log(v(2));

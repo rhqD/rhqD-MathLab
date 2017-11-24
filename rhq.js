@@ -12,7 +12,7 @@ rhq.generateValueFunc = (tensor, args) => {
   const childFuncs = tensor.varbs.map((item) => {
     const targetItem = _.find(args, (arg) => (arg === item));
     if (!_.isEmpty(targetItem)){
-      return (...targs) => (targetItem.op(targs[targetItem.argumentIndex]));
+      return (...targs) => (targs[targetItem.argumentIndex]);
     }
     return rhq.generateValueFunc(item, args);
   });
@@ -26,7 +26,7 @@ rhq.var = () => {
   const x = {
     op: (v) => (v)
   };
-  x.varbs = [x];
+  x.varbs = [];
   return x;
 }
 
