@@ -54,8 +54,8 @@ const train = ({x, y, value: {t1, t2}}) => {
   vars.push(rhq.const(x));
   vars.push(rhq.const(y));
   vars.push(rhq.const(1));
-  const netH1 = sum(mul(vars[0], w1[0][0], mul(vars[1], w1[0][1]), mul(vars[2], w1[0][2])));
-  const netH2 = sum(mul(vars[0], w1[1][0], mul(vars[1], w1[1][1]), mul(vars[2], w1[1][2])));
+  const netH1 = sum(mul(vars[0], w1[0][0]), mul(vars[1], w1[0][1]), mul(vars[2], w1[0][2]));
+  const netH2 = sum(mul(vars[0], w1[1][0]), mul(vars[1], w1[1][1]), mul(vars[2], w1[1][2]));
   const outH1 = sigmod(netH1);
   const outH2 = sigmod(netH2);
   const outH3 = rhq.const(1);
@@ -70,14 +70,21 @@ const train = ({x, y, value: {t1, t2}}) => {
   const argValuesList = _.flatten(_.flatten([wv1, wv2]));
   v = rhq.getValueFunc(E, ...argsList);
   EValue = v(...argValuesList);
-  debugger
-  detect(E);
+  argsList.forEach(item => {
+    delete item.argumentIndex;
+  })
+  // console.log('********************');
+  // console.log(`input: [${x}, ${y}]`);
+  // console.log(`error: ${EValue}`);
+  // console.log('********************');
 }
 
 const trainIt = (times = 0) => {
+  console.log('begin');
   for (i = 0; i< times; i++){
     train(generateSample());
   }
+  console.log('end');
 };
 
 const detect = (tensor) => {
@@ -93,4 +100,4 @@ const detect = (tensor) => {
   return;
 }
 
-trainIt(1);
+trainIt(5);

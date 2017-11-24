@@ -39,13 +39,9 @@ rhq.var = (name) => ({
 })
 
 rhq.const = (x) => ({
-  value: x,
-  op: () => (this.value),
+  op: () => (x),
   varbs: [],
   get name(){
     return `CONSTANT ${this.value}`;
-  },
-  add: (v) => {
-    this.value += v;
   }
 });
