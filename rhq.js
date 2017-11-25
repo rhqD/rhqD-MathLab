@@ -10,14 +10,21 @@ rhq.getValueFunc = (tensor, ...args) => {
   return result;
 }
 
-rhq.getDiffTensor = (tensor, arg) => {
+rhq.getDiffTensor = (tensor, arg, table) => {
+  const targetTensor = _.get(table, [tensor.guid, arg.guid], null);
+  if (targetTensor){
+    return targetTensor;
+  }
   if (tensor === arg){
     return rhq.const(1);
   }
   let result = rhq.const(0);
   tensor.varbs.forEach((subTensor, index) => {
-    result = add(result, mul(tensor.diffs[index], rhq.getDiffTensor(subTensor, arg)));
+    result = add(result, mul(tensor.diffs[index], rhq.getDiffTensor(subTensor, arg, table)));
   });
+  if (tensor.guid !== undefined && arg.guid !== undefined){
+    _.set(table, [tensor.guid, arg.guid], result);
+  }
   return result;
 }
 

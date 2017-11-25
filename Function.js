@@ -25,7 +25,7 @@ const arccos = (x) => ({
   op: Math.acos,
   get diffs(){
     if (!_.isArray(this._diffs)){
-      this._diffs = [neg(div(rhq.const(1), pow(minus(1, pow(x, rhq.const(2))), rhq.const(0.5))))];
+      this._diffs = [neg(div(rhq.const(1), pow(minus(rhq.const(1), pow(x, rhq.const(2))), rhq.const(0.5))))];
     }
     return this._diffs;
   },
