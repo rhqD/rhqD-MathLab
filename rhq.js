@@ -3,7 +3,11 @@ rhq.getValueFunc = (tensor, ...args) => {
   args.forEach((arg, index) => {
     arg.argumentIndex = index;
   });
-  return rhq.generateValueFunc(tensor, args);
+  const result = rhq.generateValueFunc(tensor, args);
+  args.forEach((arg) => {
+    delete arg.argumentIndex;
+  });
+  return result;
 }
 
 rhq.getDiffTensor = (tensor, arg) => {
@@ -21,7 +25,8 @@ rhq.generateValueFunc = (tensor, args) => {
   const targetItem = _.find(args, (arg) => (arg === tensor));
   if (!_.isEmpty(targetItem)){
     //如果当前节点是参数表中的变量，则不在下溯，直接返回
-    return (...targs) => (targs[targetItem.argumentIndex]);
+    const argIndex = targetItem.argumentIndex;
+    return (...targs) => (targs[argIndex]);
   }
   //如果当前节点不是参数表中的变量，则继续下溯
   const childFuncs = tensor.varbs.map((item) => {
@@ -47,6 +52,6 @@ rhq.const = (x) => ({
   op: () => (x),
   varbs: [],
   get name(){
-    return `CONSTANT ${this.value}`;
+    return `CONSTANT ${x}`;
   }
 });
