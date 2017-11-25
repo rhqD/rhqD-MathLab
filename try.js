@@ -38,17 +38,17 @@ const w3 = [
 ];
 
 const wv1 = [
-  [{value: 1},{value: 1},{value: 1},{value: 1}],
-  [{value: 1},{value: 1},{value: 1},{value: 1}],
-  [{value: 1},{value: 1},{value: 1},{value: 1}]
+  [{value: 0.0964783812828067},{value: 0.1356163470251167},{value: 3.5614196763269987},{value: 3.5614196763269987}],
+  [{value: 3.305861172705575},{value: 4.968667312731929},{value: 0.4187515192255164},{value: 0.4187515192255164}],
+  [{value: 0.8442850317899462},{value: 1.235071370696865},{value: 0.93597618363665},{value: 0.93597618363665}]
 ];
 
 const wv2 = [
-  [{value: 1},{value: 1},{value: 1},{value: 1}],
-  [{value: 1},{value: 1},{value: 1},{value: 1}],
-  [{value: 1},{value: 1},{value: 1},{value: 1}],
-  [{value: 1},{value: 1},{value: 1},{value: 1}],
-  [{value: 1},{value: 1},{value: 1},{value: 1}]
+  [{value: 4.43954623375997},{value: -1.0904988224588634},{value: 2.533557486132169},{value: 2.533557486132169}],
+  [{value: 5.179977332905208},{value: -0.26875818962723624},{value: 2.919029389591943},{value: 2.919029389591943}],
+  [{value: -3.4495059017104137},{value: 2.270945955205993},{value: 2.6611328150512232},{value: 2.6611328150512232}],
+  [{value: -3.4495059017104137},{value: 2.270945955205993},{value: 2.6611328150512232},{value: 2.6611328150512232}],
+  [{value: 1.0721652479169659},{value: -3.053763416624841},{value: -0.8721622913290935},{value: -0.8721622913290935}]
 ];
 
 const wv3 = [
@@ -168,11 +168,11 @@ const keepTraining = () => {
   let trainedTimes = 0;
   let accuracy = 0;
   console.log('begin training');
-  while(accuracy < 0.8){
-    trainIt(300);
+  while(accuracy < 0.999999){
+    trainIt(500);
     accuracy = testIt(100);
   }
-  console.log('begin succeed');
+  console.log('*********************** succeed ******************************');
 }
 
 const detect = (tensor) => {
@@ -221,6 +221,6 @@ const testIt = (times = 0) => {
   console.log(`accuracy: ${success / total} || total: ${total} || success: ${success} || fail: ${fail} || error: ${error}`);
   return success / total;
 }
-
+testIt(1000);
 keepTraining();
-testIt(1000)
+testIt(10000);
