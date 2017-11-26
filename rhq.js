@@ -50,6 +50,19 @@ rhq.generateValueFunc = (tensor, args) => {
   };
 };
 
+rhq.detect = (tensor) => {
+  if (tensor.varbs.length > 0 && _.find(tensor.varbs, (item) => (!_.isObject(item))) !== undefined){
+    console.error(tensor);
+    return;
+  }
+  let result = null;
+  const len = tensor.varbs.length;
+  for(let i = 0; i < len; i++){
+    detect(tensor.varbs[i]);
+  }
+  return;
+}
+
 rhq.var = (name) => ({
   varbs: [],
   name

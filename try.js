@@ -38,31 +38,31 @@ const w3 = [
 ];
 
 const wv1 = [
-  [{value: 0.0964783812828067},{value: 0.1356163470251167},{value: 3.5614196763269987},{value: 3.5614196763269987}],
-  [{value: 3.305861172705575},{value: 4.968667312731929},{value: 0.4187515192255164},{value: 0.4187515192255164}],
-  [{value: 0.8442850317899462},{value: 1.235071370696865},{value: 0.93597618363665},{value: 0.93597618363665}]
+  [{value: -0.49286370072873464},{value: 0.0944717794370245},{value: 7.9271633833939825},{value: 7.9271633833939825}],
+  [{value: 5.741695880965794},{value: 10.11329849762234},{value: 0.042958283253492664},{value: 0.042958283253492664}],
+  [{value: 0.8323453406170885},{value: 0.9891034732707417},{value: 0.9719366873142862},{value: 0.9719366873142862}]
 ];
 
 const wv2 = [
-  [{value: 4.43954623375997},{value: -1.0904988224588634},{value: 2.533557486132169},{value: 2.533557486132169}],
-  [{value: 5.179977332905208},{value: -0.26875818962723624},{value: 2.919029389591943},{value: 2.919029389591943}],
-  [{value: -3.4495059017104137},{value: 2.270945955205993},{value: 2.6611328150512232},{value: 2.6611328150512232}],
-  [{value: -3.4495059017104137},{value: 2.270945955205993},{value: 2.6611328150512232},{value: 2.6611328150512232}],
-  [{value: 1.0721652479169659},{value: -3.053763416624841},{value: -0.8721622913290935},{value: -0.8721622913290935}]
+  [{value: 4.45255987628176},{value: 1.910414983985832},{value: 3.0988561545795337},{value: 3.0988561545795337}],
+  [{value: 5.456450920741066},{value: -4.698075839044019},{value: 3.03979043884555},{value: 3.03979043884555}],
+  [{value: -3.1143040682283996},{value: 4.23722564401026},{value: 3.0831729184789785},{value: 3.0831729184789785}],
+  [{value: -3.1143040682283996},{value: 4.23722564401026},{value: 3.0831729184789785},{value: 3.0831729184789785}],
+  [{value: 2.432524468004812},{value: -1.6650172796923433},{value: -1.6120232544920157},{value: -1.6120232544920157}]
 ];
 
 const wv3 = [
+  [{value: 5.447450948451574},{value: -4.9253565721313155}],
   [{value: 1},{value: 1}],
-  [{value: 1},{value: 1}],
-  [{value: 1},{value: 1}],
-  [{value: 1},{value: 1}],
-  [{value: 1},{value: 1}]
+  [{value: -3.6241404364232386},{value: 3.29760031670448}],
+  [{value: -3.6241404364232386},{value: 3.29760031670448}],
+  [{value: -0.9016241268422507},{value: 0.6851688757375717}]
 ];
 
 //学习速度
-const step = 0.5;
+const step = 0.005;
 
-const minE = 0.005;
+const minE = 0.00000005;
 
 const generateTensor = ({x, y, value: {t1, t2}}) => {
   const vars = [];
@@ -114,9 +114,9 @@ const generateTensor = ({x, y, value: {t1, t2}}) => {
   outH24.guid = 61;
   const outH25 = rhq.const(1);
   outH25.guid = 62;
-  const netO1 = sum(mul(outH21, w2[0][0]), mul(outH22, w2[1][0]), mul(outH23, w2[2][0]), mul(outH24, w2[3][0]), mul(outH25, w2[4][0]));
+  const netO1 = sum(mul(outH21, w3[0][0]), mul(outH22, w2[1][0]), mul(outH23, w3[2][0]), mul(outH24, w3[3][0]), mul(outH25, w3[4][0]));
   netO1.guid = 63;
-  const netO2 = sum(mul(outH21, w2[0][1]), mul(outH22, w2[1][1]), mul(outH23, w2[2][1]), mul(outH24, w2[3][1]), mul(outH25, w2[4][1]));
+  const netO2 = sum(mul(outH21, w3[0][1]), mul(outH22, w2[1][1]), mul(outH23, w3[2][1]), mul(outH24, w3[3][1]), mul(outH25, w3[4][1]));
   netO2.guid = 64;
   const outO1 = sigmod(netO1);
   outO1.guid = 65;
@@ -164,13 +164,13 @@ const trainIt = (times = 0) => {
   // console.log('end training');
 };
 
-const keepTraining = () => {
+const keepTraining = (limit) => {
   let trainedTimes = 0;
   let accuracy = 0;
   console.log('begin training');
-  while(accuracy < 0.999999){
+  while(accuracy < limit){
     trainIt(500);
-    accuracy = testIt(100);
+    accuracy = testIt(10000);
   }
   console.log('*********************** succeed ******************************');
 }
@@ -221,6 +221,6 @@ const testIt = (times = 0) => {
   console.log(`accuracy: ${success / total} || total: ${total} || success: ${success} || fail: ${fail} || error: ${error}`);
   return success / total;
 }
-testIt(1000);
-keepTraining();
-testIt(10000);
+// testIt(10000);
+keepTraining(0.9995);
+// testIt(10000);
