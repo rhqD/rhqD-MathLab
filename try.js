@@ -1,6 +1,4 @@
 
-const typeMapper = [1, 2, 2, 1]
-
 const generateSample = () => {
   const x = Math.random() * 100 - 50;
   const y = Math.random() * 100 - 50;

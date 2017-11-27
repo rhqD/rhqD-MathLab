@@ -1,61 +1,31 @@
 const myBPNN = new BPNN({input: 1, hls: [], output: 1, step: 0.01, minE: 0});
+myBPNN.generateTrainSample = () => {
+  const x = Math.random() * 100 - 40;
+  return [x, x > 10 ? 1 : 0];
+};
 
-const generateSample = () => {
-  const x = Math.random() * 100 - 50;
-  return {inputs: [x], expects: [x > 10 ? 1 : 0]}
-}
+myBPNN.generateTestSample = () => {
+  const x = Math.random() * 200 - 90;
+  return [x, x > 10 ? 1 : 0];
+};
 
-const testOnce = () => {
-  const {inputs, expects} = generateSample();
-  const values = myBPNN.values(...inputs);
-  const expect = expects[0];
+myBPNN.judge = (values, expects) => {
   const value = values[0];
-  if (_.isNaN(value)){
+  const expect = expects[0];
+  if (_.isNaN(value) || !_.isNumber(value)){
     console.error('NaN during test');
     return null;
   }
   return expect === 1 && value > 0.5 || expect === 0 && value < 0.5;
-}
+};
 
-const test = (count = 1) => {
-  let total = 0;
-  let success = 0;
-  let fail = 0;
-  let error = 0;
-  console.log('begin testing');
-  for(let c = 0; c < count; c++){
-    const result = testOnce();
-    if (result === null){
-      error++;
-    } else if (result){
-      total++;
-      success++;
-    } else {
-      total++;
-      fail++;
-    }
+let lastAC = 0;
+const onTrainInterval = (ac) => {
+  if (ac < lastAC && ac > 0.95){
+    myBPNN.step = myBPNN.step - 0.0000005;
+    console.log(`adjust step to **${myBPNN.step}**`);
   }
-  console.log(`accuracy: ${success / total} || total: ${total} || success: ${success} || fail: ${fail} || error: ${error}`);
-  return success / total;
+  lastAC = ac;
 }
 
-const train = (count = 1) => {
-  for(let c = 0; c < count; c++){
-    myBPNN.train(generateSample());
-  }
-  myBPNN.updateValuesFunc();
-}
-
-const keepTraining = (limit) => {
-  let trainedTimes = 0;
-  let accuracy = 0;
-  console.log('begin training');
-  while(accuracy < limit){
-    trainIt(500);
-    accuracy = test(10000);
-  }
-  console.log('*********************** succeed ******************************');
-}
-
-train(100000);
-test(10000);
+myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
