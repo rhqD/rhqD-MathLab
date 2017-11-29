@@ -10,6 +10,7 @@ myBPNN.generateTestSample = () => {
 };
 
 myBPNN.judge = (values, expects) => {
+  debugger
   const value = values[0];
   const expect = expects[0];
   if (_.isNaN(value) || !_.isNumber(value)){
@@ -28,4 +29,6 @@ const onTrainInterval = (ac) => {
   lastAC = ac;
 }
 
-myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
+// myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.92, minE: 0, onTrainInterval});
+myBPNN.train(200);
+myBPNN.keepTesting(10000);
