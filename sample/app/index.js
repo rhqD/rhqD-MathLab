@@ -1,4 +1,4 @@
-const BPNN = require('./NN/BPNN');
+const BPNN = require('../../NN/BPNN');
 const _ = require('lodash');
 const myBPNN = new BPNN({input: 1, hls: [], output: 1, step: 0.01, minE: 0});
 myBPNN.generateTrainSample = () => {
@@ -32,4 +32,4 @@ const onTrainInterval = (ac) => {
 
 // myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.92, minE: 0, onTrainInterval});
 myBPNN.train(200);
-myBPNN.keepTesting(10000);
+myBPNN.keepTesting(1000);

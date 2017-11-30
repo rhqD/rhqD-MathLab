@@ -1,3 +1,8 @@
+const rhqD = require('../rhqD');
+const {square, minus, sum} = rhqD.functions;
+const {mm, sigmodM} = require('../matrix');
+const {timeUtils: {getInterval}} = require('../utils');
+const _ = require('lodash');
 class BPNN {
   static generateValueMatrix(mi, mj, random){
     let result = [];
@@ -13,7 +18,7 @@ class BPNN {
     let result = [];
     for(let i = 0; i < mi; i++){
       for(let j = 0; j < mj; j++){
-        _.set(result, [i, j], rhq.var(`${name}[${i}][${j}]`));
+        _.set(result, [i, j], rhqD.var(`${name}[${i}][${j}]`));
       }
     }
     return result;
@@ -43,11 +48,11 @@ class BPNN {
     const {inputs, ms, LayerOutputs} = this.expressions;
     const args = _.flatten(_.flatten(_.flatten(ms)));
     const outputs = _.last(LayerOutputs)[0];//取最后一层的输出
-    const expects = _.range(0, this.outputCount).map((index) => (rhq.var(`output${index + 1}`)));
+    const expects = _.range(0, this.outputCount).map((index) => (rhqD.var(`output${index + 1}`)));
     const E = BPNN.getE(outputs, expects);
-    this.ev = rhq.getValueFunc(E, ...inputs[0], ...expects, ...args);
+    this.ev = rhqD.getValueFunc(E, ...inputs[0], ...expects, ...args);
     const dfTable = {};
-    this.dvs = _.flatten( _.flatten( _.flatten(ms))).map((arg) => (rhq.getValueFunc(rhq.getDiffTensor(E, arg, dfTable), ...inputs[0], ...expects, ...args)));
+    this.dvs = _.flatten( _.flatten( _.flatten(ms))).map((arg) => (rhqD.getValueFunc(rhqD.getDiffTensor(E, arg, dfTable), ...inputs[0], ...expects, ...args)));
     this.updateValuesFunc();
   }
 
@@ -63,7 +68,7 @@ class BPNN {
     const msModalList = _.flatten(_.flatten(_.flatten(this.msModal)));
     const msModalValues = msModalList.map((item) => (item.value));
     const outputs = _.last(LayerOutputs)[0];//取最后一层的输出
-    this.values = (...argValues) => (outputs.map((item) => (rhq.getValueFunc(item, ...inputArgs, ...msArgs)(...argValues, ...msModalValues))));
+    this.values = (...argValues) => (outputs.map((item) => (rhqD.getValueFunc(item, ...inputArgs, ...msArgs)(...argValues, ...msModalValues))));
   }
 
   persist(){
@@ -121,7 +126,7 @@ class BPNN {
 
   train(count = 1){
     for(let c = 0; c < count; c++){
-      myBPNN.trainOnce();
+      this.trainOnce();
     }
   }
 
@@ -183,7 +188,7 @@ class BPNN {
     let guid = 1;
     const ms = [];
     //构造输入矩阵
-    const inputs = [_.range(0, this.inputCount).map((index) => (rhq.var(`input${index + 1}`)))];
+    const inputs = [_.range(0, this.inputCount).map((index) => (rhqD.var(`input${index + 1}`)))];
     let mi = this.inputCount + 1;
     //构造权重矩阵
     [...this.hls, this.outputCount].forEach((layerSize, index) => {
@@ -194,14 +199,14 @@ class BPNN {
     const LayerOutputs = [];
     const LayerInputs = [];
     const m1 = [[...inputs[0]]];
-    m1[0].push(rhq.const(1));
+    m1[0].push(rhqD.const(1));
     LayerOutputs.push(m1);
     ms.forEach((m, index) => {
       const lIn = mm(LayerOutputs[index], m);
       LayerInputs.push(lIn);
       const lOut = sigmodM(lIn);//应该是一个1*x的矩阵
       if (index < (ms.length - 1)){
-        lOut[0].push(rhq.const(1));
+        lOut[0].push(rhqD.const(1));
       }
       LayerOutputs.push(lOut);
     });
@@ -214,20 +219,20 @@ class BPNN {
   }
 
   getOutputsVaryWithInputs(){
-    const inputs = [_.range(0, this.inputCount).map((index) => (rhq.var(`input${index}`)))];
-    const ms = this.msModal.map((m) => (m.map((row) => (row.map((item) => (rhq.const(item.value)))))));
+    const inputs = [_.range(0, this.inputCount).map((index) => (rhqD.var(`input${index}`)))];
+    const ms = this.msModal.map((m) => (m.map((row) => (row.map((item) => (rhqD.const(item.value)))))));
     /***前向传播***/
     let guid = 1;
     const LayerOutputs = [];
     const LayerInputs = [];
-    inputs[0].push(rhq.const(1));
+    inputs[0].push(rhqD.const(1));
     LayerOutputs.push(inputs);
     ms.forEach((m, index) => {
       const lIn = mm(LayerOutputs[index], m);
       LayerInputs.push(lIn);
       const lOut = sigmodM(lIn);//应该是一个1*x的矩阵
       if (index < (ms.length - 1)){
-        lOut[0].push(rhq.const(1));
+        lOut[0].push(rhqD.const(1));
       }
       LayerOutputs.push(lOut);
     });
@@ -239,3 +244,5 @@ class BPNN {
     return {inputs, ms, LayerOutputs, LayerInputs};
   }
 }
+
+module.exports = BPNN;

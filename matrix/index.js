@@ -1,3 +1,5 @@
+const _ = require('lodash');
+const {functions: {mul, sum, sigmod}} = require('../rhqD');
 const mm = (m1, m2) => {
   const m1i = m1.length;
   const m1j = m1[0].length;
@@ -28,3 +30,11 @@ const vm = (v1, v2) => {
 }
 
 const sigmodM = (m) => (m.map((row) => (row.map((ele) => (sigmod(ele))))));
+
+module.exports = {
+  mm,
+  IV,
+  JV,
+  vm,
+  sigmodM
+}

@@ -1,13 +1,18 @@
+const rhqD = require('../rhqD');
+require('colors');
+const {getValueFunc, getDiffTensor, functions} = rhqD;
+const {sin, cos, arccos, arcsin, tan, ln, exp, neg, sigmod, square, pow, add, minus, mul, div, log, sum} = functions;
+const _ = require('lodash');
 const test = (describe, testBody) => {
   console.log(describe);
   const log = (message) => {
     console.log(`****${message}`);
   };
   const error = (message) => {
-    console.error(`****${message}`);
+    console.log(`****${message}`.red);
   };
   const assert = (a, b, message = '') => {
-    if (a - b < 0.00000001){
+    if (Math.abs(a - b) < 0.00000001){
       if (message.length > 0){
         log(message);
       }
@@ -21,20 +26,20 @@ const test = (describe, testBody) => {
   console.log();
 }
 
-const const1 = rhq.const(1);
-const const2 = rhq.const(2);
-const x = rhq.var('x');
+const const1 = rhqD.const(1);
+const const2 = rhqD.const(2);
+const x = rhqD.var('x');
 const a2x = mul(x, const2);
 const b2x = add(x, x);
 const c2x = mul(const2, x);
-const y = rhq.var('y');
+const y = rhqD.var('y');
 const sinx = sin(x);
 const cosx = cos(x);
 //一元函数测试
 test('test y = x', (assert) => {
-  const vf = rhq.getValueFunc(x, x);
-  const df1 = rhq.getValueFunc(rhq.getDiffTensor(x, x), x);
-  const df2 = rhq.getValueFunc(rhq.getDiffTensor(x, x));
+  const vf = rhqD.getValueFunc(x, x);
+  const df1 = rhqD.getValueFunc(rhqD.getDiffTensor(x, x), x);
+  const df2 = rhqD.getValueFunc(rhqD.getDiffTensor(x, x));
   assert(vf(1), 1);
   assert(vf(2), 2);
   assert(vf(4), 4);
@@ -46,12 +51,12 @@ test('test y = x', (assert) => {
 
 
 test('test y = 2 * x', (assert) => {
-  const vf1 = rhq.getValueFunc(a2x, x);
-  const vf2 = rhq.getValueFunc(b2x, x);
-  const vf3 = rhq.getValueFunc(c2x, x);
-  const df1 = rhq.getValueFunc(rhq.getDiffTensor(a2x, x), x);
-  const df2 = rhq.getValueFunc(rhq.getDiffTensor(b2x, x), x);
-  const df3 = rhq.getValueFunc(rhq.getDiffTensor(c2x, x), x);
+  const vf1 = rhqD.getValueFunc(a2x, x);
+  const vf2 = rhqD.getValueFunc(b2x, x);
+  const vf3 = rhqD.getValueFunc(c2x, x);
+  const df1 = rhqD.getValueFunc(rhqD.getDiffTensor(a2x, x), x);
+  const df2 = rhqD.getValueFunc(rhqD.getDiffTensor(b2x, x), x);
+  const df3 = rhqD.getValueFunc(rhqD.getDiffTensor(c2x, x), x);
   assert(vf1(1), 2, '1 * 2 = 2');
   assert(vf2(1), 2, '1 + 1 = 2');
   assert(vf3(1), 2, '2 * 1 = 2');
@@ -74,8 +79,8 @@ test('test y = 2 * x', (assert) => {
 
 test('test y = 2 * x + 1', (assert) => {
   const a2xPlus1 = add(a2x, const1);
-  const vf = rhq.getValueFunc(a2xPlus1, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(a2xPlus1, x), x);
+  const vf = rhqD.getValueFunc(a2xPlus1, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(a2xPlus1, x), x);
   assert(vf(2), 5);
   assert(vf(7), 15);
   assert(vf(9), 19);
@@ -85,8 +90,8 @@ test('test y = 2 * x + 1', (assert) => {
 });
 
 test('test y = sin(x)', (assert) => {
-  const vf = rhq.getValueFunc(sinx, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(sinx, x), x);
+  const vf = rhqD.getValueFunc(sinx, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(sinx, x), x);
   assert(vf(0), 0, 'sin(0) = 0');
   assert(vf(Math.PI), Math.sin(Math.PI), 'sin(PI) = 0');
   assert(vf(Math.PI / 6), Math.sin(Math.PI / 6), 'sin(PI / 6) = 0.5');
@@ -96,8 +101,8 @@ test('test y = sin(x)', (assert) => {
 
 test('test y = sin(2x + 1)', (assert) => {
   const vt = sin(add(a2x, const1));
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(1), Math.sin(3));
   assert(vf(0), Math.sin(1));
   assert(df(0), 2 * Math.cos(1));
@@ -106,8 +111,8 @@ test('test y = sin(2x + 1)', (assert) => {
 
 test('test y = arcsin(x)', (assert) => {
   const vt = arcsin(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(1), Math.PI / 2);
   assert(vf(0.5), Math.PI / 6);
   assert(df(0), 1);
@@ -115,8 +120,8 @@ test('test y = arcsin(x)', (assert) => {
 });
 
 test('test y = cos(x)', (assert) => {
-  const vf = rhq.getValueFunc(cosx, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(cosx, x), x);
+  const vf = rhqD.getValueFunc(cosx, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(cosx, x), x);
   assert(vf(0), 1, 'cos(0) = 1');
   assert(vf(1), Math.cos(1));
   assert(df(0), 0, 'cos\'(0) = 0');
@@ -125,9 +130,9 @@ test('test y = cos(x)', (assert) => {
 
 test('test y = arccos(x)', (assert) => {
   const vt = arccos(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const dt = rhq.getDiffTensor(vt, x);
-  const df = rhq.getValueFunc(dt, x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const dt = rhqD.getDiffTensor(vt, x);
+  const df = rhqD.getValueFunc(dt, x);
   assert(vf(1), Math.acos(1));
   assert(vf(0.8), Math.acos(0.8));
   assert(df(0), -1);
@@ -136,8 +141,8 @@ test('test y = arccos(x)', (assert) => {
 
 test('test y = tan(x)', (assert) => {
   const vt = tan(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(0), 0);
   assert(vf(Math.PI / 3), Math.tan(Math.PI / 3));
   assert(df(0), 1);
@@ -146,8 +151,8 @@ test('test y = tan(x)', (assert) => {
 
 test('test y = exp(x)', (assert) => {
   const vt = exp(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(0), 1);
   assert(vf(2), Math.E * Math.E);
   assert(df(0), 1);
@@ -156,8 +161,8 @@ test('test y = exp(x)', (assert) => {
 
 test('test y = ln(x)', (assert) => {
   const vt = ln(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(1), 0);
   assert(vf(Math.E), 1);
   assert(df(2), 0.5);
@@ -166,8 +171,8 @@ test('test y = ln(x)', (assert) => {
 
 test('test y = neg(x)', (assert) => {
   const vt = neg(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(0), 0);
   assert(vf(1), -1);
   assert(df(1), -1);
@@ -176,18 +181,18 @@ test('test y = neg(x)', (assert) => {
 
 test('test y = sigmod(x)', (assert) => {
   const vt = sigmod(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
-  assert(vf(0), 1);
-  assert(vf(1), 1 / (1 + 1 / Math.E));
-  assert(df(1), vf(1) * (1 - vf(1)));
-  assert(df(2), vf(2) * (1 - vf(2)));
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
+  assert(vf(0), 0.5, '1');
+  assert(vf(1), 1 / (1 + 1 / Math.E), '2');
+  assert(df(1), vf(1) * (1 - vf(1)), '3');
+  assert(df(2), vf(2) * (1 - vf(2)), '4');
 });
 
 test('test y = square(x)', (assert) => {
   const vt = square(x);
-  const vf = rhq.getValueFunc(vt, x);
-  const df = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const df = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(1), 1);
   assert(vf(2), 4);
   assert(vf(3), 9);
@@ -199,9 +204,9 @@ test('test y = square(x)', (assert) => {
 //二元函数测试
 test('test y = pow(x, y)', (assert) => {
   const vt = pow(x, y);
-  const vf = rhq.getValueFunc(vt, x, y);
-  const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-  const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+  const vf = rhqD.getValueFunc(vt, x, y);
+  const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+  const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
   assert(vf(1, 2), 1, '1^2 = 1');
   assert(vf(3, 3), 27, '3^3 = 27');
   assert(vf(2, 4), 16, '2^4 = 16');
@@ -209,16 +214,16 @@ test('test y = pow(x, y)', (assert) => {
   assert(dfx(1, 0), 0, '0*(1^-1) = 0');
   assert(dfx(2, 3), 12, '3*(2^2) = 12');
   assert(dfx(3, 3), 27, '3*(3^2) = 27');
-  //ln(y)*(x^y)
+  //ln(x)*(x^y)
   assert(dfy(2, 2), Math.log(2) * 4);
-  assert(dfy(3, 5), Math.log(5) * 162);
+  assert(dfy(3, 5), Math.log(3) * 243);
   assert(dfy(1, 3), 0);
 });
 
 test('test y = pow(x, 2)', (assert) => {
   const vt = pow(x, const2);
-  const vf = rhq.getValueFunc(vt, x);
-  const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(1), 1, '1^2 = 1');
   assert(vf(2), 4, '2^2 = 4');
   assert(vf(3), 9, '3^2 = 9');
@@ -229,8 +234,8 @@ test('test y = pow(x, 2)', (assert) => {
 
 test('test y = pow(2, x)', (assert) => {
   const vt = pow(const2, x);
-  const vf = rhq.getValueFunc(vt, x);
-  const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x);
+  const vf = rhqD.getValueFunc(vt, x);
+  const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x);
   assert(vf(1), 2, '2^1 = 2');
   assert(vf(3), 8, '2^3 = 8');
   assert(vf(4), 16, '2^4 = 16');
@@ -238,16 +243,16 @@ test('test y = pow(2, x)', (assert) => {
   const ln2 = Math.log(2);
   assert(dfx(3), ln2 * 8);
   assert(dfx(2), ln2 * 4);
-  assert(dfx(7), ln2 * 128);
+  assert(dfx(7), ln2 * Math.pow(2, 7));
 });
 
 test('test y = x + y', (assert) => {
   const vt = add(x, y);
-  const vf = rhq.getValueFunc(vt, x, y);
-  const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-  const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+  const vf = rhqD.getValueFunc(vt, x, y);
+  const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+  const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
   assert(vf(1, 2), 3);
-  assert(vf(2, 4), 8);
+  assert(vf(2, 4), 6);
   assert(vf(3, 7), 10);
   assert(dfx(1, 6), 1);
   assert(dfx(2, 4), 1);
@@ -258,10 +263,10 @@ test('test y = x + y', (assert) => {
 });
 
 test('test y = 2x + 3y', (assert) => {
-  const vt = add(mul(const2, x), mul(rhq.const(3), y));
-  const vf = rhq.getValueFunc(vt, x, y);
-  const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-  const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+  const vt = add(mul(const2, x), mul(rhqD.const(3), y));
+  const vf = rhqD.getValueFunc(vt, x, y);
+  const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+  const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
   assert(vf(1, 2), 8);
   assert(vf(2, 3), 13);
   assert(vf(0, 4), 12);
@@ -275,9 +280,9 @@ test('test y = 2x + 3y', (assert) => {
 
 // test('test y = x - y', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -291,9 +296,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = 2x - 3y', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -307,9 +312,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = x - 2', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -323,9 +328,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = x * y', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -339,9 +344,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = 2x * y', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -355,9 +360,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = x * 2', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -371,9 +376,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = x * 0', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -387,9 +392,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = x / y', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -403,9 +408,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = 2x / y', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -419,9 +424,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = x / 2', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -435,9 +440,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = log(x, y)', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -451,9 +456,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = log(2x, y)', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -467,9 +472,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = log(x, 2y)', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -483,9 +488,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = log(2, x)', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
@@ -499,9 +504,9 @@ test('test y = 2x + 3y', (assert) => {
 //
 // test('test y = log(x, 2)', (assert) => {
 //   const vt = ();
-//   const vf = rhq.getValueFunc(vt, x, y);
-//   const dfx = rhq.getValueFunc(rhq.getDiffTensor(vt, x), x, y);
-//   const dfy = rhq.getValueFunc(rhq.getDiffTensor(vt, y), x, y);
+//   const vf = rhqD.getValueFunc(vt, x, y);
+//   const dfx = rhqD.getValueFunc(rhqD.getDiffTensor(vt, x), x, y);
+//   const dfy = rhqD.getValueFunc(rhqD.getDiffTensor(vt, y), x, y);
 //   assert(vf(), );
 //   assert(vf(), );
 //   assert(vf(), );
