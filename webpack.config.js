@@ -13,7 +13,6 @@ module.exports = {
     hot: true
   },
   entry: [
-    'babel-polyfill',
     'react-hot-loader/patch',
     './sample/app/index'
   ],
@@ -35,11 +34,6 @@ module.exports = {
   ],
   module: {
     rules: [
-      {
-        test: /\.js$/,
-        use: ['babel-loader'],
-        include: path.join(__dirname, 'app')
-      },
       {
         test: /\.css$/,
         use: [

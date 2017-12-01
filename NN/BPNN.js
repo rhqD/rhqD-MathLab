@@ -126,6 +126,7 @@ class BPNN {
 
   train(count = 1){
     for(let c = 0; c < count; c++){
+      // console.log(c);
       this.trainOnce();
     }
   }
@@ -137,7 +138,7 @@ class BPNN {
     console.log(`begin training at ${startDate}`);
     while(accuracy < limit){
       this.train(trainTimes);
-      myBPNN.updateValuesFunc();
+      this.updateValuesFunc();
       accuracy = this.keepTesting(testTimes);
       if (_.isFunction(onTrainInterval)){
         onTrainInterval(accuracy);

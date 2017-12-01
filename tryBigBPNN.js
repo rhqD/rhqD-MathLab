@@ -36,16 +36,16 @@ myBPNN.judge = (values, expects) => {
 
 let lastAC = 0;
 const onTrainInterval = (ac) => {
-  if (ac < lastAC && ac > 0.95){
+  if (ac < lastAC && ac > 0.9){
     myBPNN.step = myBPNN.step / 2;
     console.log(`adjust step to **${myBPNN.step}**`);
   }
   lastAC = ac;
 }
 
-// myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
+// myBPNN.keepTraining({trainTimes: 100, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval});
 myBPNN.inject(historys[0].values);
 myBPNN.updateValuesFunc();
-myBPNN.step = 0.05;
+// myBPNN.step = 0.05;
 myBPNN.keepTesting(10000);
 // myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
