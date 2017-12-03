@@ -2,12 +2,12 @@ const BPNN = require('./NN/BPNN');
 const _ = require('lodash');
 const myBPNN = new BPNN({input: 1, hls: [], output: 1, step: 0.01, minE: 0});
 myBPNN.generateTrainSample = () => {
-  const x = Math.random() * 100 - 40;
+  const x = Math.random() * 20 - 10;
   return [x, x > 10 ? 1 : 0];
 };
 
 myBPNN.generateTestSample = () => {
-  const x = Math.random() * 200 - 90;
+  const x = Math.random() * 2 - 1;
   return [x, x > 10 ? 1 : 0];
 };
 
@@ -30,6 +30,7 @@ const onTrainInterval = (ac) => {
   lastAC = ac;
 }
 
-// myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.92, minE: 0, onTrainInterval});
-myBPNN.train(200);
+window.it = myBPNN;
+myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.92, minE: 0, onTrainInterval});
+// myBPNN.train(1);
 myBPNN.keepTesting(10000);

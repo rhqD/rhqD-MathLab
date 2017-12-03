@@ -29,12 +29,12 @@ const vm = (v1, v2) => {
   return sum(...subResults);
 }
 
-const sigmodM = (m) => (m.map((row) => (row.map((ele) => (sigmod(ele))))));
+const activateM = (m, activation = sigmod) => (m.map((row) => (row.map((ele) => (activation(ele))))));
 
 module.exports = {
   mm,
   IV,
   JV,
   vm,
-  sigmodM
+  activateM
 }
