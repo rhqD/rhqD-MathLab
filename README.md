@@ -39,6 +39,17 @@ const y = Node.varb('y');
 const const2 = Node.constant(2);
 const const3 = Node.constant(3);
 const z = add(mul(const2, x), mul(const3, y));
+/*
+变量z依赖于x和y，所以当x和y都有值时，z.value才有值
+x.value = 1;
+y.value = 2;
+z.value === 8;
+改变x或y的值，z的值也会随之改变
+x.value = 2;
+z.value === 10;
+*/
 ```
+## 求导
+
 
 
