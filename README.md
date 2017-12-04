@@ -1,52 +1,44 @@
 # rhqD-MathLab
 数学函数求值和求导
 让你以十分优雅的方式写数学函数，并十分简单的实现对其求导。
-## 简单示例
-```javascript 
-test('y = sinx, z = y ^ 2, w = 2 * z, v = w + 3', (assert) => {
-  //生成变量x
-  const x = Node.varb('x');
-  //生成常量2
-  const const2 = Node.constant(2);
-  //生成常量3
-  const const3 = Node.constant(3);
-  //y = sin(x)
-  const y = sin(x);
-  //z = y ^ 2
-  const z = square(y);
-  //w = 2 * z
-  const w = mul(const2, z);
-  //v = w + 3
-  const v = add(w, const3);
-  //t = x + z
-  const t = add(x, z);
+从而以此实现一些机器学习的算法
 
-  x.value = 0;
-  assert(y.value, 0);
-  assert(z.value, 0);
-  assert(w.value, 0);
-  assert(v.value, 3);
-  assert(t.value, 0);
-  x.value = Math.PI / 6;
-  assert(y.value, 0.5);
-  assert(z.value, 0.25);
-  assert(w.value, 0.5);
-  assert(v.value, 3.5);
-  assert(t.value, 0.25 + Math.PI / 6);
-});
+## 基本思路
+```javascript 
+  //Node.varb用于生成变量
+  const x = Node.varb('x');//可选参数'x'代表变量x的name，建议与变量名保持一致
+  //Node.constant用于生成常量
+  const const2 = Node.constant(2);//参数2代表常量的值（必选参数）
 ```
+### 生成了变量后就可以对变量进行运算来得到更复杂的数学变量了，变量的运算主要通过内置的一系列基本函数来实现。提供的内置函数主要有：
 ```javascript
-test('v = a*x + b*y + 1*z', (assert) => {
-  const a = Node.varb('a');
-  const b = Node.varb('b');
-  const const1 = Node.constant(1);
-  const x = Node.varb('x');
-  const y = Node.varb('y');
-  const z = Node.varb('z');
-  const vt = sigmod(sum(mul(a, x), mul(b, y), mul(const1, z)));
-  //vt对x求偏导
-  const dt = rhqD.getDiffTensor(vt, x);
-});
+{
+  //一元函数
+  sin,
+  cos,
+  arccos,
+  arcsin,
+  tan,
+  ln,
+  exp,
+  neg,
+  sigmod,
+  tanh,
+  square,
+  //二元函数
+  pow,//x^y
+  add,
+  minus,
+  mul,//x*y
+  div,//x/y
+  log//log(x, y)
+}
+// z = 2x + 3y
+const x = Node.varb('x');
+const y = Node.varb('y');
+const const2 = Node.constant(2);
+const const3 = Node.constant(3);
+const z = add(mul(const2, x), mul(const3, y));
 ```
 
 
