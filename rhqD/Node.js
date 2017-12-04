@@ -125,6 +125,10 @@ class Node {
     }
   }
 
+  deriv(varb){
+
+  }
+
   //优化节点（包括当前节点），主要针对1*x,0*x,0+x的情况
   getOptimizedNode(){
     const len = this.varbs.length;
