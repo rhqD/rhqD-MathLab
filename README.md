@@ -35,5 +35,18 @@ test('y = sinx, z = y ^ 2, w = 2 * z, v = w + 3', (assert) => {
   assert(t.value, 0.25 + Math.PI / 6);
 });
 ```
+```javascript
+test('v = a*x + b*y + 1*z', (assert) => {
+  const a = Node.varb('a');
+  const b = Node.varb('b');
+  const const1 = Node.constant(1);
+  const x = Node.varb('x');
+  const y = Node.varb('y');
+  const z = Node.varb('z');
+  const vt = sigmod(sum(mul(a, x), mul(b, y), mul(const1, z)));
+  //vt对x求偏导
+  const dt = rhqD.getDiffTensor(vt, x);
+});
+```
 
 
