@@ -1,5 +1,23 @@
 const _ = require('lodash');
+
 class Node {
+  static varb(name){
+    const p = new Node({name, caculated: true});
+    p.toExpression = () => (p.name);
+    return p;
+  };
+
+  static constant(x){
+    const p = new Node({
+      op: () => (x),
+      value: x,
+      varbs: [],
+      isConstant: true,
+      caculated: true
+    });
+    p.toExpression = () => (p.value);
+    return p;
+  };
 
   // _isConstant = false;
   // _value = null;
@@ -10,7 +28,7 @@ class Node {
   // _caculated = false;
   // _diffGetters = null;
   // _name = '';
-  constructor({op = null, varbs = [], diffGetters = [], isConstant = false, name = '', caculated = false, value = null}){
+  constructor({op = null, opName = '', varbs = [], diffGetters = [], isConstant = false, name = '', caculated = false, value = null}){
     this.fathers = [];
     this.op = op;
     this.varbs = varbs;
@@ -19,6 +37,7 @@ class Node {
     this._name = name;
     this._caculated = caculated;
     this._value = value;
+    this.opName = opName;
   }
 
   get name(){
@@ -66,7 +85,6 @@ class Node {
     if (_.isEmpty(this.varbs)){
       //叶子结点，可以修改value
       this._value = v;
-      this._caculated = false;
       this.fathers.forEach((item) => {
         item.spreadDirtyStatus();
       })
@@ -85,6 +103,67 @@ class Node {
         item.spreadDirtyStatus();
       });
     }
+  }
+
+  //将所有对当前节点的以来，替换为新节点
+  replaceMeWith(node){
+    //先将当前节点从所有的子节点的fathers中移除
+    this.varbs.forEach((varb) => {
+      varb.fathers = varb.fathers.filter((father) => (father !== this));
+    });
+    this.fathers.forEach((father) => {
+      node.fathers.push(father);
+      father.varbs = father.varbs.map((varb) => (varb === this ? node : varb));
+    });
+  }
+
+  optimize(){
+    const len = this.varbs.length;
+    //先优化子节点，再优化当前节点
+    for(let i = 0; i < len; i++){
+      this.varbs[i].getOptimizedNode();
+    }
+  }
+
+  //优化节点（包括当前节点），主要针对1*x,0*x,0+x的情况
+  getOptimizedNode(){
+    const len = this.varbs.length;
+    //先优化子节点，再优化当前节点
+    for(let i = 0; i < len; i++){
+      this.varbs[i].getOptimizedNode();
+    }
+    const consts = this.varbs.filter((varb) => (varb._isConstant));
+    if (consts.length === this.varbs.length && consts.length !== 0){
+      //全是常数的情况
+      const varbValues = this.varbs.map((varb) => (varb.value));
+      const value = this.op(...varbValues);
+      const newNode = Node.constant(value);
+      this.replaceMeWith(newNode);
+      return newNode;
+    } else if (consts.length == 1 && this.varbs.length === 2){
+      //有一个常数的情况
+      const constValue = consts[0].value;
+      //不是常数的那个变量的索引
+      const nonConstantIndex = _.findIndex(this.varbs, (varb) => (!varb._isConstant));
+      let newNode = null;
+      if (constValue === 1 && this.opName === 'mul'){
+        //1*x的情况
+        newNode = this.varbs[nonConstantIndex];
+      }
+      if (constValue === 0 && this.opName === 'add'){
+        //0+x的情况
+        newNode = this.varbs[nonConstantIndex];
+      }
+      if (constValue === 0 && this.opName === 'mul'){
+        //0*x的情况
+        newNode = consts[0];
+      }
+      if (newNode !== null){
+        this.replaceMeWith(newNode);
+        return newNode;
+      }
+    }
+    return this;
   }
 }
 

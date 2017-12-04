@@ -1,5 +1,6 @@
 const rhqD = require('../rhqD');
 const {square, minus, sigmod, sum} = rhqD.functions;
+const Node = require('../rhqD/Node');
 const {mm, activateM} = require('../matrix');
 const {timeUtils: {getInterval}} = require('../utils');
 const _ = require('lodash');
@@ -18,7 +19,7 @@ class BPNN {
     let result = [];
     for(let i = 0; i < mi; i++){
       for(let j = 0; j < mj; j++){
-        _.set(result, [i, j], rhqD.var(`${name}[${i}][${j}]`));
+        _.set(result, [i, j], Node.varb(`${name}[${i}][${j}]`));
       }
     }
     return result;
@@ -46,7 +47,7 @@ class BPNN {
     this.expressions.ms = ms;
     const outputs = _.last(LayerOutputs)[0];//取最后一层的输出
     this.expressions.outputs = outputs;
-    const expects = _.range(0, this.outputCount).map((index) => (rhqD.var(`output${index + 1}`)));
+    const expects = _.range(0, this.outputCount).map((index) => (Node.varb(`output${index + 1}`)));
     this.expressions.expects = expects;
     const E = BPNN.getE(outputs, expects);
     this.expressions.E = E;
@@ -62,7 +63,7 @@ class BPNN {
     let guid = 1;
     const ms = [];
     //构造输入矩阵
-    const inputs = [_.range(0, this.inputCount).map((index) => (rhqD.var(`input${index + 1}`)))];
+    const inputs = [_.range(0, this.inputCount).map((index) => (Node.varb(`input${index + 1}`)))];
     let mi = this.inputCount + 1;
     //构造权重矩阵
     [...this.hls, this.outputCount].forEach((layerSize, index) => {
@@ -73,14 +74,14 @@ class BPNN {
     const LayerOutputs = [];
     const LayerInputs = [];
     const m1 = [[...inputs[0]]];
-    m1[0].push(rhqD.const(1));
+    m1[0].push(Node.constant(1));
     LayerOutputs.push(m1);
     ms.forEach((m, index) => {
       const lIn = mm(LayerOutputs[index], m);
       LayerInputs.push(lIn);
       const lOut = activateM(lIn, this.activation);//应该是一个1*x的矩阵
       if (index < (ms.length - 1)){
-        lOut[0].push(rhqD.const(1));
+        lOut[0].push(Node.constant(1));
       }
       LayerOutputs.push(lOut);
     });

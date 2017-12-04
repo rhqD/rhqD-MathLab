@@ -18,16 +18,16 @@ rhqD.getDiffTensor = (tensor, arg, table) => {
     return targetTensor;
   }
   if (tensor === arg){
-    return rhqD.const(1);
+    return Node.constant(1);
   }
-  let result = rhqD.const(0);
+  let result = Node.constant(0);
   tensor.varbs.forEach((subTensor, index) => {
     result = add(result, mul(tensor.diffs[index], rhqD.getDiffTensor(subTensor, arg, table)));
   });
   if (tensor.guid !== undefined && arg.guid !== undefined){
     _.set(table, [tensor.guid, arg.guid], result);
   }
-  return result;
+  return result.getOptimizedNode();
 }
 
 // rhqD.generateValueFunc = (tensor, args) => {
@@ -65,75 +65,115 @@ rhqD.getDiffTensor = (tensor, arg, table) => {
 //   return;
 // }
 
-rhqD.var = (name) => {
-  const p = new Node({name, isConstant: true});
-  return p;
-};
 
-rhqD.const = (x) => {
-  const p = new Node({
-    op: () => (x),
-    value: x,
-    varbs: [],
-    isConstant: true,
-    caculated: true
-  });
-  return p;
-};
 
 /****** functions *******/
 //一元函数
 
 const sin = (x) => {
-  const p = new Node({op: Math.sin, varbs: [x], diffGetters: [(x) => (cos(x))]});
+  const p = new Node({
+    op: Math.sin,
+    opName: 'sin',
+    varbs: [x],
+    diffGetters: [(x) => (cos(x))]
+  });
+  p.toExpression = () => (`sin(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
 
 const cos = (x) => {
-  const p = new Node({op: Math.cos, varbs: [x], diffGetters: [(x) => (neg(sin(x)))]});
+  const p = new Node({
+    op: Math.cos,
+    opName: 'cos',
+    varbs: [x],
+    diffGetters: [(x) => (neg(sin(x)))]
+  });
+  p.toExpression = () => (`cos(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
 
 const arccos = (x) => {
-  const p = new Node({op: Math.acos, varbs: [x], diffGetters: [(x) => (neg(div(rhqD.const(1), pow(minus(rhqD.const(1), pow(x, rhqD.const(2))), rhqD.const(0.5)))))]});
+  const p = new Node({
+    op: Math.acos,
+    opName: 'acos',
+    varbs: [x],
+    diffGetters: [(x) => (neg(div(Node.constant(1), pow(minus(Node.constant(1), pow(x, Node.constant(2))), Node.constant(0.5)))))]
+  });
+  p.toExpression = () => (`arccos(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
 
 const arcsin = (x) => {
-  const p = new Node({op: Math.asin, varbs: [x], diffGetters: [(x) => (div(rhqD.const(1), pow(minus(rhqD.const(1), pow(x, rhqD.const(2))), rhqD.const(0.5))))]});
+  const p = new Node({
+    op: Math.asin,
+    opName: 'asin',
+    varbs: [x],
+    diffGetters: [(x) => (div(Node.constant(1), pow(minus(Node.constant(1), pow(x, Node.constant(2))), Node.constant(0.5))))]
+  });
+  p.toExpression = () => (`arcsin(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
 
 const tan = (x) => {
-  const p = new Node({op: Math.tan, varbs: [x], diffGetters: [(x) => (pow(cos(x), rhqD.const(-2)))]});
+  const p = new Node({
+    op: Math.tan,
+    opName: 'tan',
+    varbs: [x],
+    diffGetters: [(x) => (pow(cos(x), Node.constant(-2)))]
+  });
+  p.toExpression = () => (`tan(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
 
 const ln = (x) => {
-  const p = new Node({op: Math.log, varbs: [x], diffGetters: [(x) => (div(rhqD.const(1), x))]});
+  const p = new Node({
+    op: Math.log,
+    opName: 'log',
+    varbs: [x],
+    diffGetters: [(x) => (div(Node.constant(1), x))]
+  });
+  p.toExpression = () => (`ln(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 }
 
 const exp = (x) => {
-  const p = new Node({op: Math.exp, varbs: [x], diffGetters: [(x) => (exp(x))]});
+  const p = new Node({
+    op: Math.exp,
+    opName: 'exp',
+    varbs: [x],
+    diffGetters: [(x) => (exp(x))]
+  });
+  p.toExpression = () => (`exp(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 }
 
 const neg = (x) => {
-  const p = new Node({op: (v) => (0 - v), varbs: [x], diffGetters: [(x) => (rhqD.const(-1))]});
+  const p = new Node({
+    op: (v) => (0 - v),
+    opName: 'neg',
+    varbs: [x],
+    diffGetters: [(x) => (Node.constant(-1))]
+  });
+  p.toExpression = () => (`-(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 }
 
 const sigmod = (x) => {
-  const p = new Node({op: (v) => (1 / (1 + Math.exp(0 - v))), varbs: [x], diffGetters: [(x) => (mul(p, minus(rhqD.const(1), p)))]});
+  const p = new Node({
+    op: (v) => (1 / (1 + Math.exp(0 - v))),
+    opName: 'sigmod',
+    varbs: [x],
+    diffGetters: [(x) => (mul(p, minus(Node.constant(1), p)))]
+  });
+  p.toExpression = () => (`sigmod(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
@@ -141,15 +181,23 @@ const sigmod = (x) => {
 const tanh = (x) => {
   const p = new Node({
     op: (v) => (Math.sinh(v) / Math.cosh(v)),
+    opName: 'tanh',
     varbs: [x],
     diffGetters: [(x) => (minus(rhq.const(1), square(p)))]
   });
+  p.toExpression = () => (`tanh(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
   return p;
 };
 
 const square = (x) => {
-  const p = new Node({op: (v) => (v * v), varbs: [x], diffGetters: [(x) => (mul(x, rhqD.const(2)))]});
+  const p = new Node({
+    op: (v) => (v * v),
+    opName: 'square',
+    varbs: [x],
+    diffGetters: [(x) => (mul(x, Node.constant(2)))]
+  });
+  p.toExpression = () => (`(${p.varbs[0].toExpression()})^2`);
   x.fathers.push(p);
   return p;
 }
@@ -158,12 +206,14 @@ const square = (x) => {
 const pow = (x, y) => {
   const p = new Node({
     op: (v1, v2) => (Math.pow(v1, v2)),
+    opName: 'pow',
     varbs: [x, y],
     diffGetters: [
-      (x, y) => (mul(y, pow(x, minus(y, rhqD.const(1))))),
+      (x, y) => (mul(y, pow(x, minus(y, Node.constant(1))))),
       (x, y) => (mul(ln(x), pow(x, y)))
     ]
   });
+  p.toExpression = () => (`(${p.varbs[0].toExpression()})^(${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -172,12 +222,14 @@ const pow = (x, y) => {
 const add = (x, y) => {
   const p = new Node({
     op: (v1, v2) => (v1 + v2),
+    opName: 'add',
     varbs: [x, y],
     diffGetters: [
-      (x, y) => (rhqD.const(1)),
-      (x, y) => (rhqD.const(1))
+      (x, y) => (Node.constant(1)),
+      (x, y) => (Node.constant(1))
     ]
   });
+  p.toExpression = () => (`(${p.varbs[0].toExpression()}) + (${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -186,12 +238,14 @@ const add = (x, y) => {
 const minus = (x, y) => {
   const p = new Node({
     op: (v1, v2) => (v1 - v2),
+    opName: 'minus',
     varbs: [x, y],
     diffGetters: [
-      (x, y) => (rhqD.const(1)),
-      (x, y) => (rhqD.const(-1))
+      (x, y) => (Node.constant(1)),
+      (x, y) => (Node.constant(-1))
     ]
   });
+  p.toExpression = () => (`(${p.varbs[0].toExpression()}) - (${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -200,12 +254,14 @@ const minus = (x, y) => {
 const mul = (x, y) => {
   const p = new Node({
     op: (v1, v2) => (v1 * v2),
+    opName: 'mul',
     varbs: [x, y],
     diffGetters: [
       (x, y) => (y),
       (x, y) => (x)
     ]
   });
+  p.toExpression = () => (`(${p.varbs[0].toExpression()}) * (${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -214,12 +270,14 @@ const mul = (x, y) => {
 const div = (x, y) => {
   const p = new Node({
     op: (v1, v2) => (v1 / v2),
+    opName: 'div',
     varbs: [x, y],
     diffGetters: [
-      (x, y) => (div(rhqD.const(1), y)),
-      (x, y) => (neg(mul(x, pow(y, rhqD.const(-2)))))
+      (x, y) => (div(Node.constant(1), y)),
+      (x, y) => (neg(mul(x, pow(y, Node.constant(-2)))))
     ]
   });
+  p.toExpression = () => (`(${p.varbs[0].toExpression()}) / (${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -228,12 +286,14 @@ const div = (x, y) => {
 const log = (x, y) => {
   const p = new Node({
     op: (v1, v2) => (Math.log(v2) / Math.log(v1)),
+    opName: 'log',
     varbs: [x, y],
     diffGetters: [
-      (x, y) => (div(mul(ln(y), pow(ln(x), rhqD.const(-2))), x)),
-      (x, y) => (div(rhqD.const(1), mul(ln(x), ln(y))))
+      (x, y) => (div(mul(ln(y), pow(ln(x), Node.constant(-2))), x)),
+      (x, y) => (div(Node.constant(1), mul(ln(x), ln(y))))
     ]
   });
+  p.toExpression = () => (`log(${p.varbs[0].toExpression()}, ${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;

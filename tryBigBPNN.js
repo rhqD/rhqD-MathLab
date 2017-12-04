@@ -7,7 +7,7 @@ const historys = [
     accuracy: '0.99311'
   }
 ];
-const myBPNN = new BPNN({input: 2, hls: [4,4], output: 2, step: 0.05, minE: 0.00000001});
+const myBPNN = new BPNN({input: 2, hls: [4], output: 2, step: 0.05, minE: 0.00000001});
 
 myBPNN.generateTrainSample = () => {
   const x = Math.random() * 100 - 50;
@@ -17,8 +17,8 @@ myBPNN.generateTrainSample = () => {
 };
 
 myBPNN.generateTestSample = () => {
-  const x = Math.random() * 200 - 100;
-  const y = Math.random() * 200 - 100;
+  const x = Math.random() * 20 - 10;
+  const y = Math.random() * 20 - 10;
   const area = (x >= 0 ? 2 : 0) + (y >= 0 ? 1 : 0);
   return [x, y, (area === 0 || area === 3) ? 1 : 0, (area === 1 || area === 2) ? 1 : 0];
 };
@@ -38,15 +38,14 @@ myBPNN.judge = (values, expects) => {
 let lastAC = 0;
 const onTrainInterval = (ac) => {
   if (ac < lastAC){
-    myBPNN.step = myBPNN.step - 0.005;
-    console.log(`adjust step to **${myBPNN.step}**`);
+    // myBPNN.step = myBPNN.step - 0.001;
+    // console.log(`adjust step to **${myBPNN.step}**`);
   }
   lastAC = ac;
 }
 
-myBPNN.step = 0.5;
-myBPNN.keepTraining({trainTimes: 100, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval});
+myBPNN.step = 0.01;
+myBPNN.keepTraining({trainTimes: 100, testTimes: 1000, limit: 0.996, minE: 0, onTrainInterval});
 // myBPNN.inject(historys[0].values);
-// myBPNN.train(2);
 myBPNN.keepTesting(10000);
 // myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});

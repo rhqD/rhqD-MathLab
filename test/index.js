@@ -1,4 +1,5 @@
 const rhqD = require('../rhqD');
+const Node = require('../rhqD/Node');
 require('colors');
 const {getDiffTensor, functions} = rhqD;
 const {sin, cos, arccos, arcsin, tan, ln, exp, neg, sigmod, square, pow, add, minus, mul, div, log, sum} = functions;
@@ -28,7 +29,7 @@ const test = (describe, testBody) => {
 
 //一元函数测试
 test('test y = x', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
 
   x.value = 1;
   assert(x.value, 1);
@@ -44,8 +45,8 @@ test('test y = x', (assert) => {
 });
 
 test('test y = 2 * x', (assert) => {
-  const const2 = rhqD.const(2);
-  const x = rhqD.var('x');
+  const const2 = Node.constant(2);
+  const x = Node.varb('x');
   const a2x = mul(x, const2);
   const b2x = add(x, x);
   const c2x = mul(const2, x);
@@ -80,9 +81,9 @@ test('test y = 2 * x', (assert) => {
 });
 
 test('test y = 2 * x + 1', (assert) => {
-  const const1 = rhqD.const(1);
-  const const2 = rhqD.const(2);
-  const x = rhqD.var('x');
+  const const1 = Node.constant(1);
+  const const2 = Node.constant(2);
+  const x = Node.varb('x');
   const a2x = mul(x, const2);
 
   const a2xPlus1 = add(a2x, const1);
@@ -102,7 +103,7 @@ test('test y = 2 * x + 1', (assert) => {
 });
 
 test('test y = sin(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const sinx = sin(x);
 
   const dt = rhqD.getDiffTensor(sinx, x);
@@ -119,9 +120,9 @@ test('test y = sin(x)', (assert) => {
 });
 
 test('test y = sin(2x + 1)', (assert) => {
-  const const1 = rhqD.const(1);
-  const const2 = rhqD.const(2);
-  const x = rhqD.var('x');
+  const const1 = Node.constant(1);
+  const const2 = Node.constant(2);
+  const x = Node.varb('x');
   const a2x = mul(x, const2);
 
   const vt = sin(add(a2x, const1));
@@ -137,7 +138,7 @@ test('test y = sin(2x + 1)', (assert) => {
 });
 
 test('test y = arcsin(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
 
   const vt = arcsin(x);
   const dt = rhqD.getDiffTensor(vt, x);
@@ -152,7 +153,7 @@ test('test y = arcsin(x)', (assert) => {
 });
 
 test('test y = cos(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const cosx = cos(x);
   const dt = rhqD.getDiffTensor(cosx, x);
   x.value = 0;
@@ -166,7 +167,7 @@ test('test y = cos(x)', (assert) => {
 });
 
 test('test y = arccos(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
 
   const vt = arccos(x);
   const dt = rhqD.getDiffTensor(vt, x);
@@ -181,7 +182,7 @@ test('test y = arccos(x)', (assert) => {
 });
 
 test('test y = tan(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const vt = tan(x);
   const dt = rhqD.getDiffTensor(vt, x);
   x.value = 0;
@@ -195,7 +196,7 @@ test('test y = tan(x)', (assert) => {
 });
 
 test('test y = exp(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const vt = exp(x);
   const dt = rhqD.getDiffTensor(vt, x);
   x.value = 0;
@@ -209,7 +210,7 @@ test('test y = exp(x)', (assert) => {
 });
 
 test('test y = ln(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const vt = ln(x);
   const dt = rhqD.getDiffTensor(vt, x);
   x.value = 1;
@@ -223,7 +224,7 @@ test('test y = ln(x)', (assert) => {
 });
 
 test('test y = neg(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const vt = neg(x);
   const dt = rhqD.getDiffTensor(vt, x);
   x.value = 0;
@@ -237,7 +238,7 @@ test('test y = neg(x)', (assert) => {
 });
 
 test('test y = sigmod(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const vt = sigmod(x);
   const dt = rhqD.getDiffTensor(vt, x);
   x.value = 0;
@@ -251,7 +252,7 @@ test('test y = sigmod(x)', (assert) => {
 });
 
 test('test y = square(x)', (assert) => {
-  const x = rhqD.var('x');
+  const x = Node.varb('x');
   const vt = square(x);
   const dt = rhqD.getDiffTensor(vt, x);
   x.value = 1;
@@ -270,8 +271,8 @@ test('test y = square(x)', (assert) => {
 
 // //二元函数测试
 test('test y = pow(x, y)', (assert) => {
-  const x = rhqD.var('x');
-  const y = rhqD.var('y');
+  const x = Node.varb('x');
+  const y = Node.varb('y');
   const vt = pow(x, y);
   const dtx = rhqD.getDiffTensor(vt, x);
   const dty = rhqD.getDiffTensor(vt, y);
@@ -307,8 +308,8 @@ test('test y = pow(x, y)', (assert) => {
 });
 
 test('test y = pow(x, 2)', (assert) => {
-  const x = rhqD.var('x');
-  const const2 = rhqD.const(2);
+  const x = Node.varb('x');
+  const const2 = Node.constant(2);
   const vt = pow(x, const2);
   const dtx = rhqD.getDiffTensor(vt, x);
   x.value = 1;
@@ -326,8 +327,8 @@ test('test y = pow(x, 2)', (assert) => {
 });
 
 test('test y = pow(2, x)', (assert) => {
-  const x = rhqD.var('x');
-  const const2 = rhqD.const(2);
+  const x = Node.varb('x');
+  const const2 = Node.constant(2);
   const vt = pow(const2, x);
   const dtx = rhqD.getDiffTensor(vt, x);
   x.value = 1;
@@ -347,8 +348,8 @@ test('test y = pow(2, x)', (assert) => {
 });
 
 test('test y = x + y', (assert) => {
-  const x = rhqD.var('x');
-  const y = rhqD.var('y');
+  const x = Node.varb('x');
+  const y = Node.varb('y');
   const vt = add(x, y);
   const dtx = rhqD.getDiffTensor(vt, x);
   const dty = rhqD.getDiffTensor(vt, y);
@@ -382,13 +383,15 @@ test('test y = x + y', (assert) => {
 });
 
 test('test y = 2x + 3y', (assert) => {
-  const x = rhqD.var('x');
-  const y = rhqD.var('y');
-  const const2 = rhqD.const(2);
-  const const3 = rhqD.const(3);
+  const x = Node.varb('x');
+  const y = Node.varb('y');
+  const const2 = Node.constant(2);
+  const const3 = Node.constant(3);
   const vt = add(mul(const2, x), mul(const3, y));
   const dtx = rhqD.getDiffTensor(vt, x);
   const dty = rhqD.getDiffTensor(vt, y);
+  // console.error(dty.toExpression());
+  // console.error(dtyY.toExpression());
   x.value = 1;
   y.value = 2;
   assert(vt.value, 8);
@@ -660,9 +663,9 @@ test('test y = 2x + 3y', (assert) => {
 
 //复合函数测试
 test('y = sinx, z = y ^ 2, w = 2 * z, v = w + 3', (assert) => {
-  const x = rhqD.var('x');
-  const const2 = rhqD.const(2);
-  const const3 = rhqD.const(3);
+  const x = Node.varb('x');
+  const const2 = Node.constant(2);
+  const const3 = Node.constant(3);
   const y = sin(x);
   const z = square(y);
   const w = mul(const2, z);
@@ -683,5 +686,22 @@ test('y = sinx, z = y ^ 2, w = 2 * z, v = w + 3', (assert) => {
   assert(t.value, 0.25 + Math.PI / 6);
 });
 //复合多元函数测试
+
+test('v = a*x + b*y + 1*z', (assert) => {
+  const a = Node.varb('a');
+  const b = Node.varb('b');
+  const const1 = Node.constant(1);
+  const x = Node.varb('x');
+  const y = Node.varb('y');
+  const z = Node.varb('z');
+  const vt = sigmod(sum(mul(a, x), mul(b, y), mul(const1, z)));
+  const dt = rhqD.getDiffTensor(vt, x);
+  a.value = 1;
+  b.value = 2;
+  x.value = 3;
+  y.value = 4;
+  z.value = 2;
+  debugger
+});
 //任意变量求值
 //任意变量求导测试

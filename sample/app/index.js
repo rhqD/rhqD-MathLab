@@ -1,1 +1,1 @@
-require('../../tryBigBPNN');
+require('../../test');
