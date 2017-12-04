@@ -13,7 +13,7 @@ test('y = sinx, z = y ^ 2, w = 2 * z, v = w + 3', (assert) => {
   //y = sin(x)
   const y = sin(x);
   //z = y ^ 2
-  const z = squa(y);
+  const z = square(y);
   //w = 2 * z
   const w = mul(const2, z);
   //v = w + 3
