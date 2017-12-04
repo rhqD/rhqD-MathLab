@@ -2,7 +2,7 @@
 数学函数求值和求导
 让你以十分优雅的方式写数学函数，并十分简单的实现对其求导。
 ## 简单示例
-``` 
+```javascript 
 test('y = sinx, z = y ^ 2, w = 2 * z, v = w + 3', (assert) => {
   //生成变量x
   const x = Node.varb('x');
