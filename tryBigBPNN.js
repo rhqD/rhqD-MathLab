@@ -45,8 +45,8 @@ const onTrainInterval = (ac) => {
 }
 
 myBPNN.step = 0.01;
-// myBPNN.keepTraining({trainTimes: 100, testTimes: 1000, limit: 0.996, minE: 0, onTrainInterval});
-myBPNN.train(10000);
+myBPNN.keepTraining({trainTimes: 100, testTimes: 1000, limit: 0.996, minE: 0, onTrainInterval});
+// myBPNN.train(10000);
 // myBPNN.inject(historys[0].values);
 myBPNN.keepTesting(10000);
 // myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});

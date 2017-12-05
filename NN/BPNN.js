@@ -52,7 +52,7 @@ class BPNN {
     this.expressions.E = E;
     const args = _.flatten(_.flatten(_.flatten(ms)));
     const dfTable = {};
-    this.dts = args.map((arg) => (E.deriv(arg)));
+    this.expressions.dts = args.map((arg) => (E.deriv(arg)));
     args.forEach((arg) => {
       arg.value = _.isFunction(random) ? random() : Math.random();
     });
@@ -100,9 +100,13 @@ class BPNN {
     const args = _.flatten(_.flatten(_.flatten(ms)));
     if (EValue > this.minE){
       //后向传播
-      this.dts.forEach((dt, index) => {
+      const diffs = [];
+      this.expressions.dts.forEach((dt, index) => {
         const dv = dt.value;
-        args[index].value = args[index].value - dv * this.step;
+        diffs[index] = dv * this.step;
+      });
+      diffs.forEach((diff, index) => {
+        args[index].value = args[index].value - diff;
       });
     } else {
       console.log(`accurate enough, no need to train with EValue = ${EValue}`);

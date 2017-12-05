@@ -1,4 +1,5 @@
 const Node = require('../rhqD/Node');
+const BPNN = require('../NN/BPNN');
 require('colors');
 const {functions} = Node;
 const {sin, cos, arccos, arcsin, tan, ln, exp, neg, sigmod, square, pow, add, minus, mul, div, log, sum} = functions;
@@ -703,6 +704,43 @@ test('v = a*x + b*y + 1*z', (assert) => {
   assert(dt.value, 0.0000022603);
   a.value = 2;
   assert(dt.value, 2.2499997464e-7);
+});
+
+test('BPNN', (assert) => {
+  const n = new BPNN({input: 2, hls: [4, 4], output: 1});
+  n.generateTrainSample = () => {
+    const x = Math.random() * 100 - 50;
+    const y = Math.random() * 100 - 50;
+    const area = (x >= 0 ? 2 : 0) + (y >= 0 ? 1 : 0);
+    return [x, y, (area === 0 || area === 3) ? 1 : 0];
+  };
+
+  n.generateTestSample = () => {
+    const x = Math.random() * 20 - 10;
+    const y = Math.random() * 20 - 10;
+    const area = (x >= 0 ? 2 : 0) + (y >= 0 ? 1 : 0);
+    return [x, y, (area === 0 || area === 3) ? 1 : 0];
+  };
+
+  n.judge = (values, expects) => {
+    const expect = expects[0];
+    const value = values[0];
+    if (_.isNaN(value)){
+      console.error('NaN during test');
+      return null;
+    }
+    return (value > 0.5 && expect === 1);
+  };
+
+  const {ms, dts, inputs, expects} = n.expressions;
+  inputs[0].value = 15;
+  inputs[1].value = 10;
+  expects[0].value = 1;
+  // dts.forEach((dt, index) => {
+  //   const dv = dt.value;
+  //
+  // });
+
 });
 //任意变量求值
 //任意变量求导测试
