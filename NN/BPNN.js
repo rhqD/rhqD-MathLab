@@ -1,6 +1,5 @@
-const rhqD = require('../rhqD');
-const {square, minus, sigmod, sum} = rhqD.functions;
 const Node = require('../rhqD/Node');
+const {square, minus, sigmod, sum} = Node.functions;
 const {mm, activateM} = require('../matrix');
 const {timeUtils: {getInterval}} = require('../utils');
 const _ = require('lodash');
@@ -53,7 +52,7 @@ class BPNN {
     this.expressions.E = E;
     const args = _.flatten(_.flatten(_.flatten(ms)));
     const dfTable = {};
-    this.dts = args.map((arg) => (rhqD.getDiffTensor(E, arg, dfTable)));
+    this.dts = args.map((arg) => (E.deriv(arg)));
     args.forEach((arg) => {
       arg.value = _.isFunction(random) ? random() : Math.random();
     });

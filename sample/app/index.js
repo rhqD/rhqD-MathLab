@@ -1,1 +1,2 @@
 require('../../test');
+require('../../tryBigBPNN');

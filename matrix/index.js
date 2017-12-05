@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {functions: {mul, sum, sigmod}} = require('../rhqD');
+const {functions: {mul, sum, sigmod}} = require('../rhqD/Node');
 const mm = (m1, m2) => {
   const m1i = m1.length;
   const m1j = m1[0].length;

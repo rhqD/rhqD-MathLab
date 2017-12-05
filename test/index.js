@@ -1,7 +1,6 @@
-const rhqD = require('../rhqD');
 const Node = require('../rhqD/Node');
 require('colors');
-const {getDiffTensor, functions} = rhqD;
+const {functions} = Node;
 const {sin, cos, arccos, arcsin, tan, ln, exp, neg, sigmod, square, pow, add, minus, mul, div, log, sum} = functions;
 const _ = require('lodash');
 const test = (describe, testBody) => {
@@ -37,7 +36,7 @@ test('test y = x', (assert) => {
   assert(x.value, 2);
   x.value = 4;
   assert(x.value, 4);
-  const dt = rhqD.getDiffTensor(x, x);
+  const dt = x.deriv(x);
   dt.value
   assert(dt.value, 1);
   x.value = 2;
@@ -51,9 +50,9 @@ test('test y = 2 * x', (assert) => {
   const b2x = add(x, x);
   const c2x = mul(const2, x);
 
-  const df1 = rhqD.getDiffTensor(a2x, x);
-  const df2 = rhqD.getDiffTensor(b2x, x);
-  const df3 = rhqD.getDiffTensor(c2x, x);
+  const df1 = a2x.deriv(x);
+  const df2 = b2x.deriv(x);
+  const df3 = c2x.deriv(x);
   x.value = 1;
   assert(a2x.value, 2, '1 * 2 = 2');
   assert(b2x.value, 2, '1 + 1 = 2');
@@ -87,7 +86,7 @@ test('test y = 2 * x + 1', (assert) => {
   const a2x = mul(x, const2);
 
   const a2xPlus1 = add(a2x, const1);
-  const dt = rhqD.getDiffTensor(a2xPlus1, x);
+  const dt = a2xPlus1.deriv(x);
   x.value = 2;
   assert(a2xPlus1.value, 5);
   x.value = 7;
@@ -106,7 +105,7 @@ test('test y = sin(x)', (assert) => {
   const x = Node.varb('x');
   const sinx = sin(x);
 
-  const dt = rhqD.getDiffTensor(sinx, x);
+  const dt = sinx.deriv(x);
   x.value = 0;
   assert(sinx.value, 0, 'sin(0) = 0');
   x.value = Math.PI;
@@ -126,7 +125,7 @@ test('test y = sin(2x + 1)', (assert) => {
   const a2x = mul(x, const2);
 
   const vt = sin(add(a2x, const1));
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 1;
   assert(vt.value, Math.sin(3));
   x.value = 0;
@@ -141,7 +140,7 @@ test('test y = arcsin(x)', (assert) => {
   const x = Node.varb('x');
 
   const vt = arcsin(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 1;
   assert(vt.value, Math.PI / 2);
   x.value = 0.5;
@@ -155,7 +154,7 @@ test('test y = arcsin(x)', (assert) => {
 test('test y = cos(x)', (assert) => {
   const x = Node.varb('x');
   const cosx = cos(x);
-  const dt = rhqD.getDiffTensor(cosx, x);
+  const dt = cosx.deriv(x);
   x.value = 0;
   assert(cosx.value, 1, 'cos(0) = 1');
   x.value = 1;
@@ -170,7 +169,7 @@ test('test y = arccos(x)', (assert) => {
   const x = Node.varb('x');
 
   const vt = arccos(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 1;
   assert(vt.value, Math.acos(1));
   x.value = 0.8;
@@ -184,7 +183,7 @@ test('test y = arccos(x)', (assert) => {
 test('test y = tan(x)', (assert) => {
   const x = Node.varb('x');
   const vt = tan(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 0;
   assert(vt.value, 0);
   x.value = Math.PI / 3;
@@ -198,7 +197,7 @@ test('test y = tan(x)', (assert) => {
 test('test y = exp(x)', (assert) => {
   const x = Node.varb('x');
   const vt = exp(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 0;
   assert(vt.value, 1);
   x.value = 2;
@@ -212,7 +211,7 @@ test('test y = exp(x)', (assert) => {
 test('test y = ln(x)', (assert) => {
   const x = Node.varb('x');
   const vt = ln(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 1;
   assert(vt.value, 0);
   x.value = Math.E;
@@ -226,7 +225,7 @@ test('test y = ln(x)', (assert) => {
 test('test y = neg(x)', (assert) => {
   const x = Node.varb('x');
   const vt = neg(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 0;
   assert(vt.value, 0);
   x.value = 1;
@@ -240,7 +239,7 @@ test('test y = neg(x)', (assert) => {
 test('test y = sigmod(x)', (assert) => {
   const x = Node.varb('x');
   const vt = sigmod(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 0;
   assert(vt.value, 0.5, '1');
   x.value = 1;
@@ -254,7 +253,7 @@ test('test y = sigmod(x)', (assert) => {
 test('test y = square(x)', (assert) => {
   const x = Node.varb('x');
   const vt = square(x);
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   x.value = 1;
   assert(vt.value, 1);
   x.value = 2;
@@ -274,8 +273,8 @@ test('test y = pow(x, y)', (assert) => {
   const x = Node.varb('x');
   const y = Node.varb('y');
   const vt = pow(x, y);
-  const dtx = rhqD.getDiffTensor(vt, x);
-  const dty = rhqD.getDiffTensor(vt, y);
+  const dtx = vt.deriv(x);
+  const dty = vt.deriv(y);
   x.value = 1;
   y.value = 2;
   assert(vt.value, 1, '1^2 = 1');
@@ -311,7 +310,7 @@ test('test y = pow(x, 2)', (assert) => {
   const x = Node.varb('x');
   const const2 = Node.constant(2);
   const vt = pow(x, const2);
-  const dtx = rhqD.getDiffTensor(vt, x);
+  const dtx = vt.deriv(x);
   x.value = 1;
   assert(vt.value, 1, '1^2 = 1');
   x.value = 2;
@@ -330,7 +329,7 @@ test('test y = pow(2, x)', (assert) => {
   const x = Node.varb('x');
   const const2 = Node.constant(2);
   const vt = pow(const2, x);
-  const dtx = rhqD.getDiffTensor(vt, x);
+  const dtx = vt.deriv(x);
   x.value = 1;
   assert(vt.value, 2, '2^1 = 2');
   x.value = 3;
@@ -351,8 +350,8 @@ test('test y = x + y', (assert) => {
   const x = Node.varb('x');
   const y = Node.varb('y');
   const vt = add(x, y);
-  const dtx = rhqD.getDiffTensor(vt, x);
-  const dty = rhqD.getDiffTensor(vt, y);
+  const dtx = vt.deriv(x);
+  const dty = vt.deriv(y);
   x.value = 1;
   y.value = 2;
   assert(vt.value, 3);
@@ -388,8 +387,8 @@ test('test y = 2x + 3y', (assert) => {
   const const2 = Node.constant(2);
   const const3 = Node.constant(3);
   const vt = add(mul(const2, x), mul(const3, y));
-  const dtx = rhqD.getDiffTensor(vt, x);
-  const dty = rhqD.getDiffTensor(vt, y);
+  const dtx = vt.deriv(x);
+  const dty = vt.deriv(y);
   // console.error(dty.toExpression());
   // console.error(dtyY.toExpression());
   x.value = 1;
@@ -695,13 +694,15 @@ test('v = a*x + b*y + 1*z', (assert) => {
   const y = Node.varb('y');
   const z = Node.varb('z');
   const vt = sigmod(sum(mul(a, x), mul(b, y), mul(const1, z)));
-  const dt = rhqD.getDiffTensor(vt, x);
+  const dt = vt.deriv(x);
   a.value = 1;
   b.value = 2;
   x.value = 3;
   y.value = 4;
   z.value = 2;
-  debugger
+  assert(dt.value, 0.0000022603);
+  a.value = 2;
+  assert(dt.value, 2.2499997464e-7);
 });
 //任意变量求值
 //任意变量求导测试
