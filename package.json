@@ -28,7 +28,8 @@
     "redux-form": "6.6.0",
     "redux-logger": "^2.4.0",
     "redux-thunk": "^1.0.3",
-    "url-join": "^2.0.2"
+    "url-join": "^2.0.2",
+    "colors": "^2.0.1"
   },
   "devDependencies": {
     "css-loader": "^0.27.0",
