@@ -707,7 +707,7 @@ test('v = a*x + b*y + 1*z', (assert) => {
 });
 
 test('BPNN', (assert) => {
-  const n = new BPNN({input: 2, hls: [4, 4], output: 1});
+  const n = new BPNN({input: 2, hls: [4, 4], output: 1, random: () => (Math.random() - 0.5)});
   n.generateTrainSample = () => {
     const x = Math.random() * 100 - 50;
     const y = Math.random() * 100 - 50;
@@ -731,16 +731,20 @@ test('BPNN', (assert) => {
     }
     return (value > 0.5 && expect === 1);
   };
-
-  const {ms, dts, inputs, expects} = n.expressions;
+  const step = 10;
+  const {ms, dts, inputs, expects, E} = n.expressions;
   inputs[0].value = 15;
   inputs[1].value = 10;
   expects[0].value = 1;
-  // dts.forEach((dt, index) => {
-  //   const dv = dt.value;
-  //
-  // });
-
+  const args = _.flatten(_.flatten(_.flatten(ms)));
+  dts.forEach((dt, index) => {
+    const dv = dt.value
+    console.log(dv);
+    // const oldValue = E.value;
+    // args[index].value = args[index].value + step;
+    // const newValue = E.value;
+    // assert(newValue - dv * step, oldValue);
+  });
 });
 //任意变量求值
 //任意变量求导测试

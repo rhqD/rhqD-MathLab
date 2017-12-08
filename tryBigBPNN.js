@@ -7,7 +7,7 @@ const historys = [
     accuracy: '0.99311'
   }
 ];
-const myBPNN = new BPNN({input: 2, hls: [4, 4], output: 2, step: 0.05, minE: 0.00000001});
+const myBPNN = new BPNN({input: 2, hls: [4, 4], output: 2, step: 0.05, minE: 0.00000001, random: () => (Math.random() * 10 - 5)});
 
 myBPNN.generateTrainSample = () => {
   const x = Math.random() * 100 - 50;
@@ -45,8 +45,8 @@ const onTrainInterval = (ac) => {
 }
 
 myBPNN.step = 0.01;
-myBPNN.keepTraining({trainTimes: 100, testTimes: 1000, limit: 0.996, minE: 0, onTrainInterval});
+// myBPNN.keepTraining({trainTimes: 100, testTimes: 5000, limit: 0.98, minE: 0, onTrainInterval});
 // myBPNN.train(10000);
 // myBPNN.inject(historys[0].values);
-myBPNN.keepTesting(10000);
+// myBPNN.keepTesting(10000);
 // myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
