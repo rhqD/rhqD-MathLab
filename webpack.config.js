@@ -104,6 +104,12 @@ module.exports = {
             name: '[path][name].[ext]?[hash]'
           }
         }]
+      },
+      {
+        test: /\.worker\.js$/,
+        use: [{
+          loader: 'worker-loader'
+        }]
       }
     ]
   },

@@ -38,6 +38,7 @@ class Node {
     this._caculated = caculated;
     this._value = value;
     this.opName = opName;
+    this.memo = [];
   }
 
   get name(){
@@ -130,11 +131,18 @@ class Node {
       //对自己求导
       return Node.constant(1);
     }
+    const target = _.find(this.memo, (item) => (varb === item.varb));
+    if (target){
+      // console.error('unnesscary deriv !!!!!');
+      return target.result;
+    }
     let result = Node.constant(0);
     this.varbs.forEach((item, index) => {
       result = add(result, mul(this.diffs[index], item.deriv(varb)));
     });
-    return result.getOptimizedNode();
+    const optimizedResult = result.getOptimizedNode();
+    this.memo.push({varb, result: optimizedResult});
+    return optimizedResult
   }
 
   //优化节点（包括当前节点），主要针对1*x,0*x,0+x的情况

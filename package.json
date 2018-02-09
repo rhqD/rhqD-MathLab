@@ -29,9 +29,10 @@
     "redux-logger": "^2.4.0",
     "redux-thunk": "^1.0.3",
     "url-join": "^2.0.2",
-    "colors": "^2.0.1"
+    "colors": "^1.1.0"
   },
   "devDependencies": {
+    "worker-loader": "1.1.0",
     "css-loader": "^0.27.0",
     "eslint": "^2.9.0",
     "eslint-plugin-react": "^5.0.1",
