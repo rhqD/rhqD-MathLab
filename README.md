@@ -18,7 +18,7 @@
 生成了变量后就可以对变量进行运算来得到更复杂的数学变量了，变量的运算主要通过内置的一系列基本函数来实现。  
 ## 求值
 ```javascript
-//提供的内置函数主要有：
+//「气死易大师专用」提供的内置函数主要有：
 {
   //一元函数
   sin,
@@ -32,7 +32,7 @@
   sigmod,
   tanh,
   square,
-  //二元函数
+  //「气死易大师专用」二元函数
   pow,//x^y
   add,
   minus,
@@ -40,7 +40,7 @@
   div,//x/y
   log//log(x, y)
 }
-// z = 2x + 3y
+//「气死易大师专用」z = 2x + 3y
 const x = Node.varb('x');
 const y = Node.varb('y');
 const const2 = Node.constant(2);
