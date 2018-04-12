@@ -23,13 +23,13 @@ window.onload = () => {
         originalImg.src = src;
         srcToMatrix(src).then((imgM) => {
           //高斯模糊
-          const matrix = [
-            [1/273, 4/273, 7/273, 4/273, 1/273],
-            [4/273, 16/273, 26/273, 16/273, 4/273],
-            [7/273, 26/273, 41/273, 26/273, 7/273],
-            [4/273, 16/273, 26/273, 16/273, 4/273],
-            [1/273, 4/273, 7/273, 4/273, 1/273]
-          ];
+          // const matrix = [
+          //   [1/273, 4/273, 7/273, 4/273, 1/273],
+          //   [4/273, 16/273, 26/273, 16/273, 4/273],
+          //   [7/273, 26/273, 41/273, 26/273, 7/273],
+          //   [4/273, 16/273, 26/273, 16/273, 4/273],
+          //   [1/273, 4/273, 7/273, 4/273, 1/273]
+          // ];
           // // //浮雕
           // const matrix = [
           //   [-1, -1, 0],
@@ -48,7 +48,7 @@ window.onload = () => {
           //   [-1, 8, -1],
           //   [-1, -1, -1]
           // ];
-          // //边缘检测（5x5卷积核）
+          //边缘检测（5x5卷积核）
           // const matrix = [
           //   [-1, -1, -1, -1, -1],
           //   [-1, -1, -1, -1, -1],
@@ -56,14 +56,35 @@ window.onload = () => {
           //   [-1, -1, -1, -1, -1],
           //   [-1, -1, -1, -1, -1]
           // ];
+          //均值滤波
+          const matrix = [
+            [1/9, 1/9, 1/9],
+            [1/9, 1/9, 1/9],
+            [1/9, 1/9, 1/9]
+          ];
           // const grayImg = imageMap(imgM, (item) => {
           //   const {r, g, b} = item;
           //   return {gray: r * 0.299 + g * 0.587 + b * 0.114};
           // });
           // debugger
           // https://www.cnblogs.com/qiqibaby/p/5325193.html
-          const resultM = applyMatrix2Image(imgM, matrix, ['r', 'g', 'b']);
-          const url = imgDataToDataUrl(imgMatrixToImageData(resultM));
+          // const resultM = applyMatrix2Image(imgM, matrix, ['r', 'g', 'b']);
+          const gamma = (c, ga = 2.2) => {
+            //归一化
+            const g = (c + 0.5) / 256;
+            //预补偿
+            const g2 = Math.pow(g, 1 / ga);
+            //反归一
+            return g2 * 256 - 0.5;
+          };
+
+          const gammaImg = imageMap(imgM, (item) => {
+            item.r = gamma(item.r);
+            item.g = gamma(item.g);
+            item.b = gamma(item.b);
+            return item;
+          });
+          const url = imgDataToDataUrl(imgMatrixToImageData(gammaImg));
           processedImg.src = url;
         })
       })
