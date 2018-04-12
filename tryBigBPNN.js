@@ -23,7 +23,7 @@ const historys = [
     accuracy: 0.999
   }
 ];
-const myBPNN = new BPNN({input: 2, hls: [4, 4], output: 2, step: 0.05, minE: 0.00000001, random: () => (Math.random() * 10 - 5)});
+const myBPNN = new BPNN({input: 2, hls: [4, 4], output: 2, step: 0.05, minE: 0.00000001, random: () => (0)});
 
 myBPNN.generateTrainSample = () => {
   const x = Math.random() * 100 - 50;
