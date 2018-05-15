@@ -4,15 +4,6 @@ const {mm, activateM} = require('../matrix');
 const {timeUtils: {getInterval}} = require('../utils');
 const _ = require('lodash');
 class BPNN {
-  // static generateValueMatrix(mi, mj, random){
-  //   let result = [];
-  //   for(let i = 0; i < mi; i++){
-  //     for(let j = 0; j < mj; j++){
-  //       _.set(result, [i, j], {value: _.isFunction(random) ? random() : Math.random()});
-  //     }
-  //   }
-  //   return result;
-  // };
 
   static generateVarMatrix(mi, mj, name = ''){
     let result = [];

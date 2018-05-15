@@ -2,7 +2,7 @@
 // require('../../tryBPNN');
 // var nnWorker = require("worker-loader!./nn.worker");
 import Worker from './nn.worker.js';
-import {imageFileToDataUrl, srcToMatrix, applyMatrix2Image, imageMap, imgMatrixToImageData, imgDataToDataUrl} from '../../imageProcessing/utils';
+import {imageFileToDataUrl, sub, srcToMatrix, applyMatrix2Image, imageMap, imgMatrixToImageData, imgDataToDataUrl} from '../../imageProcessing/utils';
 window.onload = () => {
   const canv = document.getElementById('canvas1');
   const ctx = canv.getContext('2d');
@@ -15,6 +15,7 @@ window.onload = () => {
 
   const fileInput = document.getElementById('fileInput');
   const originalImg = document.getElementById('original');
+  const originalImgB = document.getElementById('originalB');
   const processedImg = document.getElementById('processed');
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
@@ -23,13 +24,13 @@ window.onload = () => {
         originalImg.src = src;
         srcToMatrix(src).then((imgM) => {
           //高斯模糊
-          // const matrix = [
-          //   [1/273, 4/273, 7/273, 4/273, 1/273],
-          //   [4/273, 16/273, 26/273, 16/273, 4/273],
-          //   [7/273, 26/273, 41/273, 26/273, 7/273],
-          //   [4/273, 16/273, 26/273, 16/273, 4/273],
-          //   [1/273, 4/273, 7/273, 4/273, 1/273]
-          // ];
+          const matrix = [
+            [1/273, 4/273, 7/273, 4/273, 1/273],
+            [4/273, 16/273, 26/273, 16/273, 4/273],
+            [7/273, 26/273, 41/273, 26/273, 7/273],
+            [4/273, 16/273, 26/273, 16/273, 4/273],
+            [1/273, 4/273, 7/273, 4/273, 1/273]
+          ];
           // // //浮雕
           // const matrix = [
           //   [-1, -1, 0],
@@ -57,35 +58,45 @@ window.onload = () => {
           //   [-1, -1, -1, -1, -1]
           // ];
           //均值滤波
-          const matrix = [
-            [1/9, 1/9, 1/9],
-            [1/9, 1/9, 1/9],
-            [1/9, 1/9, 1/9]
-          ];
-          // const grayImg = imageMap(imgM, (item) => {
-          //   const {r, g, b} = item;
-          //   return {gray: r * 0.299 + g * 0.587 + b * 0.114};
-          // });
+          // const matrix = [
+          //   [1/9, 1/9, 1/9],
+          //   [1/9, 1/9, 1/9],
+          //   [1/9, 1/9, 1/9]
+          // ];
+          const grayImg = imageMap(imgM, (item) => {
+            const {r, g, b} = item;
+            return {gray: r * 0.299 + g * 0.587 + b * 0.114};
+          });
           // debugger
           // https://www.cnblogs.com/qiqibaby/p/5325193.html
-          // const resultM = applyMatrix2Image(imgM, matrix, ['r', 'g', 'b']);
-          const gamma = (c, ga = 2.2) => {
-            //归一化
-            const g = (c + 0.5) / 256;
-            //预补偿
-            const g2 = Math.pow(g, 1 / ga);
-            //反归一
-            return g2 * 256 - 0.5;
-          };
+          debugger
+          const resultM = applyMatrix2Image(imgM, matrix, ['r', 'g', 'b']);
+          const i = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+          ];
+          const ma = applyMatrix2Image(imgM, i, ['r', 'g', 'b']);
+          const M = sub(ma, resultM);
+          // const gamma = (c, ga = 2.2) => {
+          //   //归一化
+          //   const g = (c + 0.5) / 256;
+          //   //预补偿
+          //   const g2 = Math.pow(g, 1 / ga);
+          //   //反归一
+          //   return g2 * 256 - 0.5;
+          // };
 
-          const gammaImg = imageMap(imgM, (item) => {
-            item.r = gamma(item.r);
-            item.g = gamma(item.g);
-            item.b = gamma(item.b);
-            return item;
-          });
-          const url = imgDataToDataUrl(imgMatrixToImageData(gammaImg));
-          processedImg.src = url;
+          // const gammaImg = imageMap(imgM, (item) => {
+          //   item.r = gamma(item.r);
+          //   item.g = gamma(item.g);
+          //   item.b = gamma(item.b);
+          //   return item;
+          // });
+          originalImgB.src = imgDataToDataUrl(imgMatrixToImageData(resultM));
+          processedImg.src = imgDataToDataUrl(imgMatrixToImageData(M));
         })
       })
     }

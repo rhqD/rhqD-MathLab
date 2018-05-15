@@ -109,7 +109,18 @@ const imgDataToDataUrl = (imgData) => {
   return canv.toDataURL('image/jpeg', 0.8);
 }
 
+const sub = (ima, imb, channels = ['r', 'g', 'b']) => {
+  return ima.map((item, i) => (item.map((it, j) => {
+    const result = {};
+    channels.forEach((key) => {
+      result[key] = it[key] - imb[i][j][key];
+    })
+    return result;
+  })))
+}
+
 export {
+  sub,
   imageMap,
   srcToMatrix,
   imgDataToDataUrl,
