@@ -1,8 +1,7 @@
 const _ = require('lodash');
-
 class Node {
   static varb(name){
-    const p = new Node({name, caculated: true});
+    const p = new Node({name, caculated: true, priority: Infinity});
     p.toExpression = () => (p.name);
     return p;
   };
@@ -13,7 +12,8 @@ class Node {
       value: x,
       varbs: [],
       isConstant: true,
-      caculated: true
+      caculated: true,
+      priority: Infinity
     });
     p.toExpression = () => (p.value);
     return p;
@@ -28,7 +28,7 @@ class Node {
   // _caculated = false;
   // _diffGetters = null;
   // _name = '';
-  constructor({op = null, opName = '', varbs = [], diffGetters = [], isConstant = false, name = '', caculated = false, value = null}){
+  constructor({op = null, opName = '', varbs = [], diffGetters = [], isConstant = false, name = '', caculated = false, value = null, priority = 0}){
     this.fathers = [];
     this.op = op;
     this.varbs = varbs;
@@ -39,6 +39,7 @@ class Node {
     this._value = value;
     this.opName = opName;
     this.memo = [];
+    this.priority = priority;
   }
 
   get name(){
@@ -196,7 +197,8 @@ const sin = (x) => {
     op: Math.sin,
     opName: 'sin',
     varbs: [x],
-    diffGetters: [(x) => (cos(x))]
+    diffGetters: [(x) => (cos(x))],
+    priority: Infinity
   });
   p.toExpression = () => (`sin(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -208,7 +210,8 @@ const cos = (x) => {
     op: Math.cos,
     opName: 'cos',
     varbs: [x],
-    diffGetters: [(x) => (neg(sin(x)))]
+    diffGetters: [(x) => (neg(sin(x)))],
+    priority: Infinity
   });
   p.toExpression = () => (`cos(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -220,7 +223,8 @@ const arccos = (x) => {
     op: Math.acos,
     opName: 'acos',
     varbs: [x],
-    diffGetters: [(x) => (neg(div(Node.constant(1), pow(minus(Node.constant(1), pow(x, Node.constant(2))), Node.constant(0.5)))))]
+    diffGetters: [(x) => (neg(div(Node.constant(1), pow(minus(Node.constant(1), pow(x, Node.constant(2))), Node.constant(0.5)))))],
+    priority: Infinity
   });
   p.toExpression = () => (`arccos(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -232,7 +236,8 @@ const arcsin = (x) => {
     op: Math.asin,
     opName: 'asin',
     varbs: [x],
-    diffGetters: [(x) => (div(Node.constant(1), pow(minus(Node.constant(1), pow(x, Node.constant(2))), Node.constant(0.5))))]
+    diffGetters: [(x) => (div(Node.constant(1), pow(minus(Node.constant(1), pow(x, Node.constant(2))), Node.constant(0.5))))],
+    priority: Infinity
   });
   p.toExpression = () => (`arcsin(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -244,7 +249,8 @@ const tan = (x) => {
     op: Math.tan,
     opName: 'tan',
     varbs: [x],
-    diffGetters: [(x) => (pow(cos(x), Node.constant(-2)))]
+    diffGetters: [(x) => (pow(cos(x), Node.constant(-2)))],
+    priority: Infinity
   });
   p.toExpression = () => (`tan(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -256,7 +262,8 @@ const ln = (x) => {
     op: Math.log,
     opName: 'log',
     varbs: [x],
-    diffGetters: [(x) => (div(Node.constant(1), x))]
+    diffGetters: [(x) => (div(Node.constant(1), x))],
+    priority: Infinity
   });
   p.toExpression = () => (`ln(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -268,7 +275,8 @@ const exp = (x) => {
     op: Math.exp,
     opName: 'exp',
     varbs: [x],
-    diffGetters: [(x) => (exp(x))]
+    diffGetters: [(x) => (exp(x))],
+    priority: Infinity
   });
   p.toExpression = () => (`exp(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -280,9 +288,10 @@ const neg = (x) => {
     op: (v) => (0 - v),
     opName: 'neg',
     varbs: [x],
-    diffGetters: [(x) => (Node.constant(-1))]
+    diffGetters: [(x) => (Node.constant(-1))],
+    priority: 100
   });
-  p.toExpression = () => (`-(${p.varbs[0].toExpression()})`);
+  p.toExpression = () => (`-${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''}`);
   x.fathers.push(p);
   return p;
 }
@@ -292,7 +301,8 @@ const sigmod = (x) => {
     op: (v) => (1 / (1 + Math.exp(0 - v))),
     opName: 'sigmod',
     varbs: [x],
-    diffGetters: [(x) => (mul(p, minus(Node.constant(1), p)))]
+    diffGetters: [(x) => (mul(p, minus(Node.constant(1), p)))],
+    priority: Infinity
   });
   p.toExpression = () => (`sigmod(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -304,7 +314,8 @@ const tanh = (x) => {
     op: (v) => (Math.sinh(v) / Math.cosh(v)),
     opName: 'tanh',
     varbs: [x],
-    diffGetters: [(x) => (minus(rhq.const(1), square(p)))]
+    diffGetters: [(x) => (minus(rhq.const(1), square(p)))],
+    priority: Infinity
   });
   p.toExpression = () => (`tanh(${p.varbs[0].toExpression()})`);
   x.fathers.push(p);
@@ -316,9 +327,10 @@ const square = (x) => {
     op: (v) => (v * v),
     opName: 'square',
     varbs: [x],
-    diffGetters: [(x) => (mul(x, Node.constant(2)))]
+    diffGetters: [(x) => (mul(x, Node.constant(2)))],
+    priority: 10000
   });
-  p.toExpression = () => (`(${p.varbs[0].toExpression()})^2`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''}²`);
   x.fathers.push(p);
   return p;
 }
@@ -332,9 +344,10 @@ const pow = (x, y) => {
     diffGetters: [
       (x, y) => (mul(y, pow(x, minus(y, Node.constant(1))))),
       (x, y) => (mul(ln(x), pow(x, y)))
-    ]
+    ],
+    priority: 1000
   });
-  p.toExpression = () => (`(${p.varbs[0].toExpression()})^(${p.varbs[1].toExpression()})`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' :''}^${p.varbs[1].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -348,9 +361,10 @@ const add = (x, y) => {
     diffGetters: [
       (x, y) => (Node.constant(1)),
       (x, y) => (Node.constant(1))
-    ]
+    ],
+    priority: 1
   });
-  p.toExpression = () => (`(${p.varbs[0].toExpression()}) + (${p.varbs[1].toExpression()})`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} + ${p.varbs[1].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -364,9 +378,10 @@ const minus = (x, y) => {
     diffGetters: [
       (x, y) => (Node.constant(1)),
       (x, y) => (Node.constant(-1))
-    ]
+    ],
+    priority: 1
   });
-  p.toExpression = () => (`(${p.varbs[0].toExpression()}) - (${p.varbs[1].toExpression()})`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} - ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -380,9 +395,10 @@ const mul = (x, y) => {
     diffGetters: [
       (x, y) => (y),
       (x, y) => (x)
-    ]
+    ],
+    priority: 10
   });
-  p.toExpression = () => (`(${p.varbs[0].toExpression()}) * (${p.varbs[1].toExpression()})`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} * ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -396,9 +412,10 @@ const div = (x, y) => {
     diffGetters: [
       (x, y) => (div(Node.constant(1), y)),
       (x, y) => (neg(mul(x, pow(y, Node.constant(-2)))))
-    ]
+    ],
+    priority: 10
   });
-  p.toExpression = () => (`(${p.varbs[0].toExpression()}) / (${p.varbs[1].toExpression()})`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} / ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
   x.fathers.push(p);
   y.fathers.push(p);
   return p;
@@ -412,7 +429,8 @@ const log = (x, y) => {
     diffGetters: [
       (x, y) => (div(mul(ln(y), pow(ln(x), Node.constant(-2))), x)),
       (x, y) => (div(Node.constant(1), mul(ln(x), ln(y))))
-    ]
+    ],
+    priority: Infinity
   });
   p.toExpression = () => (`log(${p.varbs[0].toExpression()}, ${p.varbs[1].toExpression()})`);
   x.fathers.push(p);
@@ -451,6 +469,4 @@ Node.functions = {
   log,
   sum
 }
-
-
 module.exports = Node;
