@@ -16,15 +16,15 @@ localhost:88
 同时利用复合函数求导法则，我们可以递归的实现图中任意节点对其他节点的求导。
 ## 生成一个变量
 ```javascript
-  //「气死易大师专用」Node.varb用于生成变量
+  //Node.varb用于生成变量
   const x = Node.varb('x');//可选参数'x'代表变量x的name，建议与变量名保持一致
-  //「气死易大师专用」Node.constant用于生成常量
+  //Node.constant用于生成常量
   const const2 = Node.constant(2);//参数2代表常量的值（必选参数）
 ```
 生成了变量后就可以对变量进行运算来得到更复杂的数学表达式了，变量的运算主要通过内置的一系列基本函数来实现。  
 ## 求值
 ```javascript
-//「气死易大师专用」提供的内置函数主要有：
+//提供的内置函数主要有：
 {
   //一元函数
   sin,
@@ -38,7 +38,7 @@ localhost:88
   sigmod,
   tanh,
   square,
-  //「气死易大师专用」二元函数
+  //二元函数
   pow,//x^y
   add,
   minus,
@@ -46,7 +46,7 @@ localhost:88
   div,//x/y
   log//log(x, y)
 }
-//「气死易大师专用」z = 2x + 3y
+//z = 2x + 3y
 const x = Node.varb('x');
 const y = Node.varb('y');
 const const2 = Node.constant(2);
@@ -85,7 +85,22 @@ assert(vdx.value, 2.2499997464e-7);
 ```
 ## 分段函数
 
-  考虑加入对分段函数的支持
+  分段函数使用PiecedNode类表示
+  ```javascript
+    const a = new PiecedNode({
+      pieces: [
+        {
+          range: '(-inf, 0]',
+          exp: Node.constant(0)
+        },
+        {
+          range: '(0, inf)',
+          exp: x
+        }
+      ],
+      rgVarb: x
+    });
+  ```
   
 ## 性能
 为了提高性能，图中每一个节点的value都只会在需要计算时才计算。如果一个节点的value已经计算过，再次访问这个节点的value属性时会返回上次的值。  
