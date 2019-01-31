@@ -40,6 +40,9 @@ class Node {
     this.opName = opName;
     this.memo = [];
     this.priority = priority;
+    this.varbs.forEach((p) => {
+      p.fathers.push(this);
+    });
   }
 
   get name(){
@@ -107,7 +110,7 @@ class Node {
     }
   }
 
-  //将所有对当前节点的以来，替换为新节点
+  //将所有对当前节点的依赖，替换为新节点
   replaceMeWith(node){
     //先将当前节点从所有的子节点的fathers中移除
     this.varbs.forEach((varb) => {
@@ -117,14 +120,6 @@ class Node {
       node.fathers.push(father);
       father.varbs = father.varbs.map((varb) => (varb === this ? node : varb));
     });
-  }
-
-  optimize(){
-    const len = this.varbs.length;
-    //先优化子节点，再优化当前节点
-    for(let i = 0; i < len; i++){
-      this.varbs[i].getOptimizedNode();
-    }
   }
 
   deriv(varb){
@@ -154,7 +149,10 @@ class Node {
       this.varbs[i].getOptimizedNode();
     }
     const consts = this.varbs.filter((varb) => (varb._isConstant));
-    if (consts.length === this.varbs.length && consts.length !== 0){
+    if (this.opName === 'piecewise'){
+      //分段函数暂时不做优化
+      return this;
+    } else if (consts.length === this.varbs.length && consts.length !== 0){
       //全是常数的情况
       const varbValues = this.varbs.map((varb) => (varb.value));
       const value = this.op(...varbValues);
@@ -188,6 +186,86 @@ class Node {
   }
 }
 
+const rangeReg = /^\s*(\(|\[)\s*(-inf|\d*.?\d*)\s*,\s*(inf|\d*.?\d*)\s*(\)|\])\s*$/;
+
+class PiecedNode extends Node {
+
+  constructor({pieces, rgVarbs}){
+    super({varbs: pieces.map((i) => (i.exp))});
+    this.rgVarbs = rgVarbs;
+    this.opName = 'piecewise';
+    rgVarbs.forEach((p) => {
+      p.fathers.push(this);
+    });
+    this.pieces = _.map(pieces, (piece) => {
+      const {range, exp} = piece;
+      if (_.isString(range)){
+        if (!rangeReg.test(range)){
+          throw `illegal range of ${range}`;
+        }
+        const startClose = RegExp.$1 === '[';
+        const start = RegExp.$2 === '-inf' ? -Infinity : parseFloat(RegExp.$2);
+        const end = RegExp.$3 === 'inf' ? Infinity : parseFloat(RegExp.$3);
+        const endClose = RegExp.$4 === ']';
+        return {
+          range: (x) => {
+            return (x > start || startClose && x === start) && (x < end || endClose && x === end);
+          },
+          exp
+        };
+      }
+      return piece;
+    });
+  }
+
+  deriv(varb){
+    if (varb === this){
+      //对自己求导
+      return Node.constant(1);
+    }
+    const target = _.find(this.memo, (item) => (varb === item.varb));
+    if (target){
+      // console.error('unnesscary deriv !!!!!');
+      return target.result;
+    }
+    const pieces = this.pieces;
+    return new PiecedNode({
+      pieces: pieces.map(({range, exp}) => ({
+        range,
+        exp: exp.deriv(varb)
+      })),
+      rgVarbs: this.rgVarbs
+    });
+  }
+
+  get value(){
+    if (this._caculated){
+      //节点值已计算过，直接返回
+      return this._value;
+    } else {
+      const args = this.rgVarbs.map((item) => {
+        const result = item.value;
+        if (!_.isNumber(result) || _.isNaN(result)){
+          throw('cant caculate value, not all varbs ha value');
+        }
+        return result;
+      });
+      const targetPiece = _.find(this.pieces, ({range, exp}) => (range(...args)));
+      if (_.isEmpty(targetPiece)){
+        throw('get value of undefined range of piecewise function');
+      }
+      const value = targetPiece.exp.value;
+      this._value = value;
+      this._caculated = true;
+      return value;
+    }
+  }
+
+  toExpression(){
+    return '@';
+  }
+}
+
 
 /****** functions *******/
 //一元函数
@@ -201,7 +279,6 @@ const sin = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`sin(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -214,7 +291,6 @@ const cos = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`cos(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -227,7 +303,6 @@ const arccos = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`arccos(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -240,7 +315,6 @@ const arcsin = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`arcsin(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -253,7 +327,6 @@ const tan = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`tan(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -266,7 +339,6 @@ const ln = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`ln(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 }
 
@@ -279,7 +351,6 @@ const exp = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`exp(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 }
 
@@ -292,7 +363,6 @@ const neg = (x) => {
     priority: 100
   });
   p.toExpression = () => (`-${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''}`);
-  x.fathers.push(p);
   return p;
 }
 
@@ -305,7 +375,6 @@ const sigmod = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`sigmod(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -318,7 +387,6 @@ const tanh = (x) => {
     priority: Infinity
   });
   p.toExpression = () => (`tanh(${p.varbs[0].toExpression()})`);
-  x.fathers.push(p);
   return p;
 };
 
@@ -331,7 +399,23 @@ const square = (x) => {
     priority: 10000
   });
   p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''}²`);
-  x.fathers.push(p);
+  return p;
+}
+
+const relu = (x) => {
+  const p = new PiecedNode({
+    pieces: [
+      {
+        range: '(-inf, 0]',
+        exp: Node.constant(0)
+      },
+      {
+        range: '(0, inf)',
+        exp: x
+      }
+    ],
+    rgVarbs: [x]
+  });
   return p;
 }
 
@@ -348,8 +432,6 @@ const pow = (x, y) => {
     priority: 1000
   });
   p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' :''}^${p.varbs[1].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
-  x.fathers.push(p);
-  y.fathers.push(p);
   return p;
 };
 
@@ -365,8 +447,6 @@ const add = (x, y) => {
     priority: 1
   });
   p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} + ${p.varbs[1].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
-  x.fathers.push(p);
-  y.fathers.push(p);
   return p;
 };
 
@@ -382,8 +462,6 @@ const minus = (x, y) => {
     priority: 1
   });
   p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} - ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
-  x.fathers.push(p);
-  y.fathers.push(p);
   return p;
 };
 
@@ -399,8 +477,6 @@ const mul = (x, y) => {
     priority: 10
   });
   p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} * ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
-  x.fathers.push(p);
-  y.fathers.push(p);
   return p;
 };
 
@@ -416,8 +492,6 @@ const div = (x, y) => {
     priority: 10
   });
   p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} / ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
-  x.fathers.push(p);
-  y.fathers.push(p);
   return p;
 };
 
@@ -433,8 +507,6 @@ const log = (x, y) => {
     priority: Infinity
   });
   p.toExpression = () => (`log(${p.varbs[0].toExpression()}, ${p.varbs[1].toExpression()})`);
-  x.fathers.push(p);
-  y.fathers.push(p);
   return p;
 };
 
@@ -461,6 +533,7 @@ Node.functions = {
   neg,
   sigmod,
   square,
+  relu,
   pow,
   add,
   minus,
@@ -469,4 +542,5 @@ Node.functions = {
   log,
   sum
 }
+
 module.exports = Node;

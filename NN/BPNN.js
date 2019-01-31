@@ -1,5 +1,5 @@
 const Node = require('../rhqD/Node');
-const {square, minus, sigmod, sum} = Node.functions;
+const {square, minus, sigmod, sum, div} = Node.functions;
 const {mm, activateM} = require('../matrix');
 const {timeUtils: {getInterval}} = require('../utils');
 const _ = require('lodash');
@@ -20,7 +20,7 @@ class BPNN {
       throw('illegal vector length at BPNN.getE');
     }
     const es = v1.map((item, index) => (square(minus(item, v2[index]))));
-    return sum(...es);
+    return div(sum(...es), Node.constant(4));
   }
 
   constructor({input, hls, output, random, step = 0.5, minE = 0, activation = sigmod}){
@@ -33,6 +33,7 @@ class BPNN {
     this.msModal = [];
     this.activation = activation;
     const {inputs, ms, LayerOutputs} = this.getExpressions();
+    this.expressions.LayerOutputs = LayerOutputs;
     this.expressions.inputs = inputs[0];
     this.expressions.ms = ms;
     const outputs = _.last(LayerOutputs)[0];//取最后一层的输出
