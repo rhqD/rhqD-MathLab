@@ -9,7 +9,7 @@
     "clearProd": "IF EXIST prod del \"prod\\*.*\" /Q /F /S",
     "prod": "npm run clearProd && webpack -p --config webpack.prod.config.js --progress --colors",
     "clearBuild": "IF EXIST build del \"build\\*.*\" /Q /F /S",
-    "clearBuild_linux": "if [ -d ./build ]; then rm -rf ./build; fi"
+    "clearBuild_linux": "if [ -d ./build ]; then rm -rf ./build; fi",
     "test": "node test"
   },
   "license": "MIT",
