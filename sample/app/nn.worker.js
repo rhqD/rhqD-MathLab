@@ -126,7 +126,7 @@ const drawImage = (points) => {
 onmessage = (event) => {
   const generateImg = () => {
     const points = _.range(0, 100).map((x) => (_.range(0, 100)));
-    const {inputs, outputs} = smallBPNN3.expressions;
+    const {inputs, outputs} = smallBPNN.expressions;
     points.forEach((arr, i) => {
       arr.forEach((item, j) => {
         inputs[0].value = j - 50;
@@ -140,11 +140,11 @@ onmessage = (event) => {
     return drawImage(points);
   }
   postMessage({img: generateImg()});
-  smallBPNN3.keepTraining({trainTimes: 4000, testTimes: 1000, limit: 1, minE: 0, onTrainInterval: () => {
+  smallBPNN.keepTraining({trainTimes: 4000, testTimes: 1000, limit: 1, minE: 0, onTrainInterval: () => {
     const img = generateImg();
     postMessage({img});
   }});
-  smallBPNN3.keepTesting(10000);
+  smallBPNN.keepTesting(10000);
 }
 
 const test = {name: 'rhqD'};
