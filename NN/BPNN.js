@@ -25,7 +25,7 @@ class BPNN {
 
   constructor({input, hls, output, random, step = 0.5, minE = 0, activation = sigmod}){
     this.expressions = {};
-    this.inputCount = input;
+    this.input = input;
     this.outputCount = output;
     this.hls = hls;
     this.step = step;
@@ -50,11 +50,21 @@ class BPNN {
     });
   }
 
+  get inputCount(){
+    return _.isArray(this.input) ? this.input.length : this.input;
+  }
+
   getExpressions(){
     let guid = 1;
     const ms = [];
     //构造输入矩阵
-    const inputs = [_.range(0, this.inputCount).map((index) => (Node.varb(`input${index + 1}`)))];
+    let inputs;
+    if (_.isArray(this.input)){
+      inputs = [this.input];
+    } else {
+      inputs = [_.range(0, this.input).map((index) => (Node.varb(`input${index + 1}`)))];
+    }
+    const activatedInputs = inputs.map(r => (r.map(v => this.activation(v))));
     let mi = this.inputCount + 1;
     //构造权重矩阵
     [...this.hls, this.outputCount].forEach((layerSize, index) => {
