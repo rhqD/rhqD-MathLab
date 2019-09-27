@@ -184,6 +184,15 @@ class Node {
     }
     return this;
   }
+
+  //获取当前节点依赖的所有叶子节点
+  get leafNodes(){
+    if (_.isEmpty(this.varbs)) {
+      return [this];
+    }
+    return _.flatten(this.varbs.map(v => v.leafNodes));
+  }
+
 }
 
 const rangeReg = /^\s*(\(|\[)\s*(-inf|\d*.?\d*)\s*,\s*(inf|\d*.?\d*)\s*(\)|\])\s*$/;

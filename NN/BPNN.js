@@ -23,13 +23,15 @@ class BPNN {
     return div(sum(...es), Node.constant(4));
   }
 
-  constructor({input, hls, output, random, step = 0.5, minE = 0, activation = sigmod}){
+  constructor({input, hls, output, random, step = 0.5, minE = 0, activateInputs = false, activation = sigmod, extendInputs}){
     this.expressions = {};
     this.input = input;
     this.outputCount = output;
+    this.extendInputs = extendInputs;
     this.hls = hls;
     this.step = step;
     this.minE = minE;
+    this.activateInputs = activateInputs;
     this.msModal = [];
     this.activation = activation;
     const {inputs, ms, LayerOutputs} = this.getExpressions();
@@ -58,14 +60,19 @@ class BPNN {
     let guid = 1;
     const ms = [];
     //构造输入矩阵
-    let inputs;
+    let inputs, originalinputs;
     if (_.isArray(this.input)){
-      inputs = [this.input];
+      originalinputs = [this.input];
     } else {
-      inputs = [_.range(0, this.input).map((index) => (Node.varb(`input${index + 1}`)))];
+      originalinputs = [_.range(0, this.input).map((index) => (Node.varb(`input${index + 1}`)))];
+    }
+    inputs = originalinputs;
+    if (_.isFunction(this.extendInputs)){
+      inputs = [[...inputs[0], ...this.extendInputs(...inputs[0])]];
     }
     const activatedInputs = inputs.map(r => (r.map(v => this.activation(v))));
-    let mi = this.inputCount + 1;
+    const finalInputs = this.activateInputs ? activatedInputs : inputs;
+    let mi = finalInputs[0].length + 1;
     //构造权重矩阵
     [...this.hls, this.outputCount].forEach((layerSize, index) => {
       ms.push(BPNN.generateVarMatrix(mi, layerSize, `w${index}`));
@@ -74,7 +81,7 @@ class BPNN {
     /***前向传播***/
     const LayerOutputs = [];
     const LayerInputs = [];
-    const m1 = [[...inputs[0]]];
+    const m1 = [[...finalInputs[0]]];
     m1[0].push(Node.constant(1));
     LayerOutputs.push(m1);
     ms.forEach((m, index) => {
@@ -91,7 +98,7 @@ class BPNN {
     ms.forEach((m) => {m.forEach((item) => {item.forEach((subItem) => {subItem.guid = guid++;});});});
     LayerOutputs.forEach((m) => {m.forEach((item) => {item.forEach((subItem) => {subItem.guid = guid++;});});});
     LayerInputs.forEach((m) => {m.forEach((item) => {item.forEach((subItem) => {subItem.guid = guid++;});});});
-    return {inputs, ms, LayerOutputs, LayerInputs};
+    return {inputs: originalinputs, ms, LayerOutputs, LayerInputs};
   }
 
   trainOnce(){

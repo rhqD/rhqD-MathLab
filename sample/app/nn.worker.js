@@ -1,9 +1,18 @@
 const BPNN = require('../../NN/BPNN');
 const _ = require('lodash');
 const Node = require('../../rhqD/Node');
-const {functions: {tanh, sigmod, square}} = Node;
+const {functions: {tanh, sigmod, square, relu}} = Node;
 
-const smallBPNN = new BPNN({input: 2, hls: [2, 2], output: 1, step: 0.3, minE: 0, activation: tanh, ramdom: () => (Math.random())});
+const smallBPNN = new BPNN({
+  input: 2,
+  hls: [2],
+  output: 1,
+  step: 0.3,
+  minE: 0,
+  activation: tanh,
+  ramdom: () => (Math.random()),
+  activateInputs: true,
+});
 smallBPNN.generateTrainSample = () => {
   const x = Math.random() * 100 - 50;
   const y = Math.random() * 100 - 50;
@@ -28,12 +37,21 @@ smallBPNN.judge = (values, expects) => {
   return (valueT1 >= 0.5 && expectT1 === 1) || (valueT1 < 0.5 && expectT1 === 0 );
 };
 
-const smallBPNN2 = new BPNN({input: 2, hls: [], output: 1, step: 0.3, minE: 0, activation: tanh, ramdom: () => (Math.random())});
+const smallBPNN2 = new BPNN({
+  input: 4,
+  hls: [4],
+  output: 1,
+  step: 0.3,
+  minE: 0,
+  activation: tanh,
+  ramdom: () => (Math.random()),
+});
+
 smallBPNN2.generateTrainSample = () => {
   const x = Math.random() * 100 - 50;
   const y = Math.random() * 100 - 50;
   const l = x * x + y * y;
-  return [x * x / 2500, y * y / 2500, l > 900 ? 1 : 0];
+  return [x, y, x * x, y * y, l > 900 ? 1 : 0];
   // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
 };
 
@@ -41,7 +59,7 @@ smallBPNN2.generateTestSample = () => {
   const x = Math.random() * 100 - 50;
   const y = Math.random() * 100 - 50;
   const l = x * x + y * y;
-  return [x * x / 2500, y * y / 2500, l > 900 ? 1 : 0];
+  return [x, y, x * x, y * y, l > 900 ? 1 : 0];
   // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
 };
 
@@ -131,6 +149,8 @@ onmessage = (event) => {
       arr.forEach((item, j) => {
         inputs[0].value = j - 50;
         inputs[1].value = 50 - i;
+        // inputs[2].value = (j - 50) * (j - 50);
+        // inputs[3].value = (50 - i) * (50 - i);
         // inputs[0].value = (j - 50) * (j - 50) / 2500;
         // inputs[1].value = (50 - i) * (50 - i) / 2500;
         const rate = outputs[0].value;
