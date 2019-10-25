@@ -6,6 +6,7 @@ forEach(Node.functions, (v, k) => {
   window[k] = v;
 });
 window.varb = Node.varb;
+window.constant = Node.constant;
 
 window.onload = () => {
   const canv = document.getElementById('canvas1');

@@ -23,7 +23,7 @@ class BPNN {
     return div(sum(...es), Node.constant(4));
   }
 
-  constructor({input, hls, output, random, step = 0.5, minE = 0, activateInputs = false, activation = sigmod, extendInputs}){
+  constructor({input, hls, output, random, step = 0.5, minE = 0, normalizeInputs, activation = sigmod, extendInputs}){
     this.expressions = {};
     this.input = input;
     this.outputCount = output;
@@ -31,7 +31,7 @@ class BPNN {
     this.hls = hls;
     this.step = step;
     this.minE = minE;
-    this.activateInputs = activateInputs;
+    this.normalizeInputs = normalizeInputs;
     this.msModal = [];
     this.activation = activation;
     const {inputs, ms, LayerOutputs} = this.getExpressions();
@@ -71,7 +71,7 @@ class BPNN {
       inputs = [[...inputs[0], ...this.extendInputs(...inputs[0])]];
     }
     const activatedInputs = inputs.map(r => (r.map(v => this.activation(v))));
-    const finalInputs = this.activateInputs ? activatedInputs : inputs;
+    const finalInputs = _.isFunction(this.normalizeInputs) ? this.normalizeInputs(inputs) : inputs;
     let mi = finalInputs[0].length + 1;
     //构造权重矩阵
     [...this.hls, this.outputCount].forEach((layerSize, index) => {

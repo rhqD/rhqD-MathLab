@@ -1,7 +1,7 @@
 const BPNN = require('../../NN/BPNN');
 const _ = require('lodash');
 const Node = require('../../rhqD/Node');
-const {functions: {tanh, sigmod, square, relu}} = Node;
+const {functions: {tanh, sigmod, square, relu, div, mul}, constant} = Node;
 
 const smallBPNN = new BPNN({
   input: 2,
@@ -38,28 +38,33 @@ smallBPNN.judge = (values, expects) => {
 };
 
 const smallBPNN2 = new BPNN({
-  input: 4,
-  hls: [4],
+  input: 2,
+  hls: [1],
   output: 1,
   step: 0.3,
   minE: 0,
-  activation: tanh,
   ramdom: () => (Math.random()),
+  normalizeInputs: (inputs) => {
+    return inputs.map(row => row.map(it => (div(it, constant(100)))));
+  },
+  extendInputs: (...inputs) => ([mul(...inputs)]),
 });
 
 smallBPNN2.generateTrainSample = () => {
   const x = Math.random() * 100 - 50;
   const y = Math.random() * 100 - 50;
-  const l = x * x + y * y;
-  return [x, y, x * x, y * y, l > 900 ? 1 : 0];
+  const xb = x > 0;
+  const yb = y > 0;
+  return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
   // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
 };
 
 smallBPNN2.generateTestSample = () => {
   const x = Math.random() * 100 - 50;
   const y = Math.random() * 100 - 50;
-  const l = x * x + y * y;
-  return [x, y, x * x, y * y, l > 900 ? 1 : 0];
+  const xb = x > 0;
+  const yb = y > 0;
+  return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
   // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
 };
 
@@ -69,18 +74,29 @@ smallBPNN2.judge = (values, expects) => {
   return (valueT1 >= 0.5 && expectT1 === 1) || (valueT1 < 0.5 && expectT1 === 0 );
 };
 
-const smallBPNN3 = new BPNN({input: 2, hls: [], output: 1, step: 0.3, minE: 0, activation: tanh, ramdom: () => (Math.random() / 1000)});
+const smallBPNN3 = new BPNN({
+  input: 2,
+  hls: [1],
+  output: 1,
+  step: 0.3,
+  minE: 0,
+  ramdom: () => (Math.random()),
+  normalizeInputs: (inputs) => {
+    return inputs.map(row => row.map(it => (div(it, constant(100)))));
+  },
+  extendInputs: (...inputs) => (inputs.map(square)),
+});
 smallBPNN3.generateTrainSample = () => {
-  const x = Math.random() * 5000 - 2500;
-  const y = Math.random() * 5000 - 2500;
-  return [x, y, x + y > 0 ? 1 : 0];
+  const x = Math.random() * 100 - 50;
+  const y = Math.random() * 100 - 50;
+  return [x, y, x * x + y * y > 400 ? 1 : 0];
   // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
 };
 
 smallBPNN3.generateTestSample = () => {
-  const x = Math.random() * 5000 - 2500;
-  const y = Math.random() * 5000 - 2500;
-  return [x, y, x + y > 0 ? 1 : 0];
+  const x = Math.random() * 100 - 50;
+  const y = Math.random() * 100 - 50;
+  return [x, y, x * x + y * y > 400 ? 1 : 0];
   // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
 };
 
@@ -144,15 +160,15 @@ const drawImage = (points) => {
 onmessage = (event) => {
   const generateImg = () => {
     const points = _.range(0, 100).map((x) => (_.range(0, 100)));
-    const {inputs, outputs} = smallBPNN.expressions;
+    const {inputs, outputs} = smallBPNN3.expressions;
     points.forEach((arr, i) => {
       arr.forEach((item, j) => {
-        inputs[0].value = j - 50;
-        inputs[1].value = 50 - i;
-        // inputs[2].value = (j - 50) * (j - 50);
-        // inputs[3].value = (50 - i) * (50 - i);
-        // inputs[0].value = (j - 50) * (j - 50) / 2500;
-        // inputs[1].value = (50 - i) * (50 - i) / 2500;
+        inputs[0].value = i - 50;
+        inputs[1].value = 50 - j;
+        // inputs[2].value = (i - 50) * (i - 50);
+        // inputs[3].value = (50 - j) * (50 - j);
+        // inputs[0].value = (i - 50) * (i - 50);
+        // inputs[1].value = (50 - j) * (50 - j);
         const rate = outputs[0].value;
         points[i][j] = rate;
       })
@@ -160,11 +176,11 @@ onmessage = (event) => {
     return drawImage(points);
   }
   postMessage({img: generateImg()});
-  smallBPNN.keepTraining({trainTimes: 4000, testTimes: 1000, limit: 1, minE: 0, onTrainInterval: () => {
+  smallBPNN3.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 1, minE: 0, onTrainInterval: () => {
     const img = generateImg();
     postMessage({img});
   }});
-  smallBPNN.keepTesting(10000);
+  smallBPNN3.keepTesting(10000);
 }
 
 const test = {name: 'rhqD'};

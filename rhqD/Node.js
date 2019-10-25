@@ -193,6 +193,39 @@ class Node {
     return _.flatten(this.varbs.map(v => v.leafNodes));
   }
 
+  gradientDescent(up, learningRate = 0.001, threshold = 0.000001, maxCount = 1000){
+    const leafNodes = this.leafNodes.filter(it => !it._isConstant);
+    let points = leafNodes.map(() => (Math.random() * 10));
+    const derivExpressions = leafNodes.map(n => (this.deriv(n)));
+    let i = 0;
+    let d = 0;
+    let oldValue = null;
+    do {
+      i++;
+      leafNodes.forEach((n, index) => {
+        n.value = points[index];
+      });
+      if (_.isNumber(this.value) && _.isNumber(oldValue) && Math.abs(this.value - oldValue) <= threshold) {
+        return this.value;
+      }
+      oldValue = this.value;
+      const derivs = derivExpressions.map(n => n.value);
+      const length = Math.sqrt(derivs.reduce((a, b) => (a + b * b), 0));
+      const moves = derivs.map(dv => (up ? 1 : -1) * learningRate * dv / length);
+      points = points.map((p, index) => (p + moves[index]));
+    }
+    while(i < maxCount);
+    return null;
+  }
+
+  gradientDescentMax(...args){
+    return this.gradientDescent(true, ...args);
+  }
+
+  gradientDescentMin(...args){
+    return this.gradientDescent(false, ...args);
+  }
+
 }
 
 const rangeReg = /^\s*(\(|\[)\s*(-inf|\d*.?\d*)\s*,\s*(inf|\d*.?\d*)\s*(\)|\])\s*$/;
