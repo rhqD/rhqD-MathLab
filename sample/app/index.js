@@ -29,9 +29,6 @@ window.onload = () => {
   worker.onmessage = (event) => {
     const {img, points, finished} = event.data;
     ctx.putImageData(img, 0, 0);
-    if (!finished){
-      return;
-    }
     const data = [{
       z: points,
       type: 'surface',
