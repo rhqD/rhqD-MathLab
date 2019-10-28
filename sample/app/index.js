@@ -22,6 +22,23 @@ const layout = {
   }
 };
 
+const iniPoints = _.range(0, 100).map(() => (_.range(0, 100).map(() => (0))));
+
+const iniData = [{
+  z: iniPoints,
+  type: 'surface',
+  contours: {
+    z: {
+      show:true,
+      usecolormap: true,
+      highlightcolor:"#42f462",
+      project:{z: true}
+    }
+  }
+}];
+
+Plotly.newPlot('plotlyHost', iniData, layout, {showSendToCloud: true});
+
 window.onload = () => {
   const canv = document.getElementById('canvas1');
   const ctx = canv.getContext('2d');
@@ -29,22 +46,8 @@ window.onload = () => {
   worker.onmessage = (event) => {
     const {img, points, finished} = event.data;
     ctx.putImageData(img, 0, 0);
-    if (!finished){
-      return;
-    }
-    const data = [{
-      z: points,
-      type: 'surface',
-      contours: {
-        z: {
-          show:true,
-          usecolormap: true,
-          highlightcolor:"#42f462",
-          project:{z: true}
-        }
-      }
-    }];
-    Plotly.newPlot('plotlyHost', data, layout, {showSendToCloud: true});
+    iniData[0].z = points;
+    Plotly.redraw('plotlyHost');
   }
   worker.postMessage({inr: 'start'});
 }

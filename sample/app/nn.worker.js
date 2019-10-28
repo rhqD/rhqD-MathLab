@@ -47,7 +47,7 @@ const smallBPNN2 = new BPNN({
   normalizeInputs: (inputs) => {
     return inputs.map(row => row.map(it => (div(it, constant(100)))));
   },
-  //extendInputs: (...inputs) => ([mul(...inputs)]),
+  // extendInputs: (...inputs) => ([mul(...inputs)]),
 });
 
 smallBPNN2.generateTrainSample = () => {
