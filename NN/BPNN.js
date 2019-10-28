@@ -144,6 +144,7 @@ class BPNN {
         onTrainInterval(accuracy);
       }
     }
+    onTrainInterval(accuracy, true);
     const endDate = new Date();
     console.log(`finish training at ${startDate}`);
     console.log('*********************** succeed ******************************');

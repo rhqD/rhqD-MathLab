@@ -5,7 +5,7 @@ const {functions: {tanh, sigmod, square, relu, div, mul}, constant} = Node;
 
 const smallBPNN = new BPNN({
   input: 2,
-  hls: [2],
+  hls: [2, 2],
   output: 1,
   step: 0.3,
   minE: 0,
@@ -39,7 +39,7 @@ smallBPNN.judge = (values, expects) => {
 
 const smallBPNN2 = new BPNN({
   input: 2,
-  hls: [1],
+  hls: [8],
   output: 1,
   step: 0.3,
   minE: 0,
@@ -47,7 +47,7 @@ const smallBPNN2 = new BPNN({
   normalizeInputs: (inputs) => {
     return inputs.map(row => row.map(it => (div(it, constant(100)))));
   },
-  extendInputs: (...inputs) => ([mul(...inputs)]),
+  //extendInputs: (...inputs) => ([mul(...inputs)]),
 });
 
 smallBPNN2.generateTrainSample = () => {
@@ -160,7 +160,7 @@ const drawImage = (points) => {
 onmessage = (event) => {
   const generateImg = () => {
     const points = _.range(0, 100).map((x) => (_.range(0, 100)));
-    const {inputs, outputs} = smallBPNN3.expressions;
+    const {inputs, outputs} = smallBPNN2.expressions;
     points.forEach((arr, i) => {
       arr.forEach((item, j) => {
         inputs[0].value = i - 50;
@@ -173,14 +173,13 @@ onmessage = (event) => {
         points[i][j] = rate;
       })
     });
-    return drawImage(points);
+    return {img: drawImage(points), points};
   }
-  postMessage({img: generateImg()});
-  smallBPNN3.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 1, minE: 0, onTrainInterval: () => {
-    const img = generateImg();
-    postMessage({img});
+  postMessage(generateImg());
+  smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: (accuracy, finished) => {
+    postMessage(Object.assign(generateImg(), {finished}));
   }});
-  smallBPNN3.keepTesting(10000);
+  smallBPNN2.keepTesting(10000);
 }
 
 const test = {name: 'rhqD'};
