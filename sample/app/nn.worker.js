@@ -39,7 +39,7 @@ smallBPNN.judge = (values, expects) => {
 
 const smallBPNN2 = new BPNN({
   input: 2,
-  hls: [8],
+  hls: [16],
   output: 1,
   step: 0.3,
   minE: 0,
@@ -159,27 +159,27 @@ const drawImage = (points) => {
 
 onmessage = (event) => {
   const generateImg = () => {
-    const points = _.range(0, 100).map((x) => (_.range(0, 100)));
-    const {inputs, outputs} = smallBPNN2.expressions;
-    points.forEach((arr, i) => {
-      arr.forEach((item, j) => {
-        inputs[0].value = i - 50;
-        inputs[1].value = 50 - j;
-        // inputs[2].value = (i - 50) * (i - 50);
-        // inputs[3].value = (50 - j) * (50 - j);
-        // inputs[0].value = (i - 50) * (i - 50);
-        // inputs[1].value = (50 - j) * (50 - j);
-        const rate = outputs[0].value;
-        points[i][j] = rate;
-      })
-    });
-    return {img: drawImage(points), points};
+    // const points = _.range(0, 100).map((x) => (_.range(0, 100)));
+    // const {inputs, outputs} = smallBPNN2.expressions;
+    // points.forEach((arr, i) => {
+    //   arr.forEach((item, j) => {
+    //     inputs[0].value = i - 50;
+    //     inputs[1].value = 50 - j;
+    //     // inputs[2].value = (i - 50) * (i - 50);
+    //     // inputs[3].value = (50 - j) * (50 - j);
+    //     // inputs[0].value = (i - 50) * (i - 50);
+    //     // inputs[1].value = (50 - j) * (50 - j);
+    //     const rate = outputs[0].value;
+    //     points[i][j] = rate;
+    //   })
+    // });
+    // return {img: drawImage(points), points};
   }
-  postMessage(generateImg());
-  smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: (accuracy, finished) => {
-    postMessage(Object.assign(generateImg(), {finished}));
-  }});
-  smallBPNN2.keepTesting(10000);
+  // postMessage(generateImg());
+  // smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: (accuracy, finished) => {
+  //   postMessage(Object.assign(generateImg(), {finished}));
+  // }});
+  // smallBPNN2.keepTesting(10000);
 }
 
 const test = {name: 'rhqD'};

@@ -230,6 +230,33 @@ class Node {
 
 const rangeReg = /^\s*(\(|\[)\s*(-inf|\d*.?\d*)\s*,\s*(inf|\d*.?\d*)\s*(\)|\])\s*$/;
 
+class IntegralNode extends Node {
+  constructor(...args) {
+    super(...args);
+    this.diffGetters = [
+      (x, y) => (mul(y, x.deriv(y))),
+      (x, y) => (y)
+    ];
+  }
+
+  deriv(varb){
+    if (varb === this){
+      //对自己求导
+      return Node.constant(1);
+    }
+    const target = _.find(this.memo, (item) => (varb === item.varb));
+    if (target){
+      // console.error('unnesscary deriv !!!!!');
+      return target.result;
+    }
+    return mul(this.diffs[0], this.varbs[0].deriv(varb));
+  }
+
+  toExpression(){
+    return `∫(${varbs[0].toExpression()})d(${varbs[1].toExpression()})`;
+  }
+}
+
 class PiecedNode extends Node {
 
   constructor({pieces, rgVarbs}){
@@ -518,7 +545,7 @@ const mul = (x, y) => {
     ],
     priority: 10
   });
-  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} * ${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
+  p.toExpression = () => (`${p.varbs[0].priority <= p.priority ? '(' : ''}${p.varbs[0].toExpression()}${p.varbs[0].priority <= p.priority ? ')' : ''} * ${p.varbs[1].priority <= p.priority ? '(' : ''}${p.varbs[1].toExpression()}${p.varbs[1].priority <= p.priority ? ')' : ''}`);
   return p;
 };
 
@@ -552,6 +579,15 @@ const log = (x, y) => {
   return p;
 };
 
+const integral = (y, x) => {
+  const p = new IntegralNode({
+    opName: 'integral',
+    varbs: [y, x],
+  });
+  return p;
+};
+
+
 const sum = (...args) => {
   if (!_.isArray(args) || args.length === 0){
     throw('cant sum nothing');
@@ -582,7 +618,8 @@ Node.functions = {
   mul,
   div,
   log,
-  sum
+  sum,
+  integral,
 }
 
 module.exports = Node;
