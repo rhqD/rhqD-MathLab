@@ -128,58 +128,58 @@ const drawImage = (points) => {
 }
 
 
-// myBPNN.step = 0.1;
-// myBPNN.inject('-30, 10, 20, -20, 20, -20, -10, 20, 20');
-// myBPNN.train(10000);
-// myBPNN.inject(historys[0].values);
+myBPNN.step = 0.1;
+myBPNN.inject('-30, 10, 20, -20, 20, -20, -10, 20, 20');
+myBPNN.train(10000);
+myBPNN.inject(historys[0].values);
 
 
-// myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
-// onmessage = (event) => {
-//   const generateImg = () => {
-//     const points = _.range(0, 100).map((x) => (_.range(0, 100)));
-//     const {inputs, outputs} = myBPNN.expressions;
-//     points.forEach((arr, i) => {
-//       arr.forEach((item, j) => {
-//         inputs[0].value = i - 50;
-//         inputs[1].value = j - 50;
-//         const rate = outputs[0].value;
-//         points[i][j] = rate;
-//       })
-//     });
-//     return drawImage(points);
-//   }
-//   postMessage({img: generateImg()});
-//   myBPNN.keepTraining({trainTimes: 4000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: () => {
-//     const img = generateImg();
-//     postMessage({img});
-//   }});
-//   myBPNN.keepTesting(10000);
-// }
+myBPNN.keepTraining({trainTimes: 100, testTimes: 100000, limit: 0.9999, minE: 0, onTrainInterval});
+onmessage = (event) => {
+  const generateImg = () => {
+    const points = _.range(0, 100).map((x) => (_.range(0, 100)));
+    const {inputs, outputs} = myBPNN.expressions;
+    points.forEach((arr, i) => {
+      arr.forEach((item, j) => {
+        inputs[0].value = i - 50;
+        inputs[1].value = j - 50;
+        const rate = outputs[0].value;
+        points[i][j] = rate;
+      })
+    });
+    return drawImage(points);
+  }
+  postMessage({img: generateImg()});
+  myBPNN.keepTraining({trainTimes: 4000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: () => {
+    const img = generateImg();
+    postMessage({img});
+  }});
+  myBPNN.keepTesting(10000);
+}
 
 onmessage = (event) => {
   const generateImg = () => {
-    // const points = _.range(0, 100).map((x) => (_.range(0, 100)));
-    // const {inputs, outputs} = smallBPNN2.expressions;
-    // points.forEach((arr, i) => {
-    //   arr.forEach((item, j) => {
-    //     inputs[0].value = i - 50;
-    //     inputs[1].value = 50 - j;
-    //     // inputs[2].value = (i - 50) * (i - 50);
-    //     // inputs[3].value = (50 - j) * (50 - j);
-    //     // inputs[0].value = (i - 50) * (i - 50);
-    //     // inputs[1].value = (50 - j) * (50 - j);
-    //     const rate = outputs[0].value;
-    //     points[i][j] = rate;
-    //   })
-    // });
-    // return {img: drawImage(points), points};
+    const points = _.range(0, 100).map((x) => (_.range(0, 100)));
+    const {inputs, outputs} = smallBPNN2.expressions;
+    points.forEach((arr, i) => {
+      arr.forEach((item, j) => {
+        inputs[0].value = i - 50;
+        inputs[1].value = 50 - j;
+        // inputs[2].value = (i - 50) * (i - 50);
+        // inputs[3].value = (50 - j) * (50 - j);
+        // inputs[0].value = (i - 50) * (i - 50);
+        // inputs[1].value = (50 - j) * (50 - j);
+        const rate = outputs[0].value;
+        points[i][j] = rate;
+      })
+    });
+    return {img: drawImage(points), points};
   }
-  // postMessage(generateImg());
-  // smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: (accuracy, finished) => {
-  //   postMessage(Object.assign(generateImg(), {finished}));
-  // }});
-  // smallBPNN2.keepTesting(10000);
+  postMessage(generateImg());
+  smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: (accuracy, finished) => {
+    postMessage(Object.assign(generateImg(), {finished}));
+  }});
+  smallBPNN2.keepTesting(10000);
 }
 
 const test = {name: 'rhqD'};
