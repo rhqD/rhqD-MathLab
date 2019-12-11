@@ -106,6 +106,42 @@ smallBPNN3.judge = (values, expects) => {
   return (valueT1 >= 0.5 && expectT1 === 1) || (valueT1 < 0.5 && expectT1 === 0 );
 };
 
+const smallBPNN4 = new BPNN({
+    input: 2,
+    hls: [8, 8],
+    output: 1,
+    step: 0.3,
+    minE: 0,
+    ramdom: () => (Math.random()),
+    normalizeInputs: (inputs) => {
+        return inputs.map(row => row.map(it => (div(it, constant(100)))));
+    },
+    extendInputs: (...inputs) => ([mul(...inputs), square(inputs[0]), square(inputs[1])]),
+});
+
+smallBPNN4.generateTrainSample = () => {
+    const x = Math.random() * 100 - 75;
+    const y = Math.random() * 100 - 75;
+    const inA = (x + 25)**2 + (y - 25)**2 < 25**2;
+    // const inB = (x - 25)**2 + (y + 25)**2 < 25**2;
+    return [x, y, inA ? 1 : 0];
+    // return [x, y, (xb && yb || !xb && !yb) ? 1 : 0];
+};
+
+smallBPNN4.generateTestSample = () => {
+    const x = Math.random() * 100 - 50;
+    const y = Math.random() * 100 - 50;
+    const inA = (x + 25)**2 + (y - 25)**2 < 25**2;
+    // const inB = (x - 25)**2 + (y + 25)**2 < 25**2;
+    return [x, y, inA ? 1 : 0];
+};
+
+smallBPNN4.judge = (values, expects) => {
+    const expectT1 = expects[0];
+    const valueT1 = values[0];
+    return (valueT1 >= 0.5 && expectT1 === 1) || (valueT1 < 0.5 && expectT1 === 0 );
+};
+
 const drawImage = (points) => {
   const img = new ImageData(100, 100);
   points.forEach((arr, i) => {
@@ -176,7 +212,7 @@ onmessage = (event) => {
     return {img: drawImage(points), points};
   }
   postMessage(generateImg());
-  smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.99, minE: 0, onTrainInterval: (accuracy, finished) => {
+  smallBPNN2.keepTraining({trainTimes: 1000, testTimes: 1000, limit: 0.999, minE: 0, onTrainInterval: (accuracy, finished) => {
     postMessage(Object.assign(generateImg(), {finished}));
   }});
   smallBPNN2.keepTesting(10000);
