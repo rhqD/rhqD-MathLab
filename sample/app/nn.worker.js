@@ -121,7 +121,7 @@ const smallBPNN4 = new BPNN({
 
 smallBPNN4.generateTrainSample = () => {
     const x = Math.random() * 100 - 75;
-    const y = Math.random() * 100 - 75;
+    const y = Math.random() * 100 - 25;
     const inA = (x + 25)**2 + (y - 25)**2 < 25**2;
     // const inB = (x - 25)**2 + (y + 25)**2 < 25**2;
     return [x, y, inA ? 1 : 0];
