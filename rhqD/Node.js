@@ -122,6 +122,27 @@ class Node {
     });
   }
 
+  //判断当前节点是否依赖于给定节点
+  dependsOn(varb) {
+    return varb === this || this.varbs.some(item => item.dependsOn(varb))
+  }
+
+  find(rule) {
+    const resultFromVarbs = flatten(this.varbs.map(varb => varb.find(rule)));
+    if (rule(this)) {
+      return [
+          this,
+          ...resultFromVarbs,
+      ];
+    }
+    return resultFromVarbs;
+  }
+
+  //判断当前节点是否不依赖于给定节点
+  independentFrom(varb) {
+    return !this.dependsOn(varb);
+  }
+
   deriv(varb){
     if (varb === this){
       //对自己求导
@@ -598,7 +619,7 @@ const sum = (...args) => {
     result = add(result, args[i]);
   }
   return result;
-}
+};
 
 Node.functions = {
   sin,
