@@ -1,15 +1,24 @@
-const Node = require('../rhqD/Node');
+import Node from '../rhqD/Node'
+import { mm, activateM } from '../matrix';
+import { timeUtils } from '../utils';
+import set from 'lodash/set';
+import last from 'lodash/last';
+import range from 'lodash/range';
+import flatten from 'lodash/flatten';
+import isFunction from 'lodash/isFunction';
+import isArray from 'lodash/isArray';
+import slice from 'lodash/slice';
+
+const { getInterval } = timeUtils;
 const {square, minus, sigmod, sum, div} = Node.functions;
-const {mm, activateM} = require('../matrix');
-const {timeUtils: {getInterval}} = require('../utils');
 const _ = require('lodash');
-class BPNN {
+export default class BPNN {
 
   static generateVarMatrix(mi, mj, name = ''){
     let result = [];
     for(let i = 0; i < mi; i++){
       for(let j = 0; j < mj; j++){
-        _.set(result, [i, j], Node.varb(`${name}[${i}][${j}]`));
+        set(result, [i, j], Node.varb(`${name}[${i}][${j}]`));
       }
     }
     return result;
@@ -38,22 +47,22 @@ class BPNN {
     this.expressions.LayerOutputs = LayerOutputs;
     this.expressions.inputs = inputs[0];
     this.expressions.ms = ms;
-    const outputs = _.last(LayerOutputs)[0];//取最后一层的输出
+    const outputs = last(LayerOutputs)[0];//取最后一层的输出
     this.expressions.outputs = outputs;
-    const expects = _.range(0, this.outputCount).map((index) => (Node.varb(`output${index + 1}`)));
+    const expects = range(0, this.outputCount).map((index) => (Node.varb(`output${index + 1}`)));
     this.expressions.expects = expects;
     const E = BPNN.getE(outputs, expects);
     this.expressions.E = E;
-    const args = _.flatten(_.flatten(_.flatten(ms)));
+    const args = flatten(flatten(flatten(ms)));
     const dfTable = {};
     this.expressions.dts = args.map((arg) => (E.deriv(arg)));
     args.forEach((arg) => {
-      arg.value = _.isFunction(random) ? random() : Math.random();
+      arg.value = isFunction(random) ? random() : Math.random();
     });
   }
 
   get inputCount(){
-    return _.isArray(this.input) ? this.input.length : this.input;
+    return isArray(this.input) ? this.input.length : this.input;
   }
 
   getExpressions(){
@@ -61,17 +70,17 @@ class BPNN {
     const ms = [];
     //构造输入矩阵
     let inputs, originalinputs;
-    if (_.isArray(this.input)){
+    if (isArray(this.input)){
       originalinputs = [this.input];
     } else {
-      originalinputs = [_.range(0, this.input).map((index) => (Node.varb(`input${index + 1}`)))];
+      originalinputs = [range(0, this.input).map((index) => (Node.varb(`input${index + 1}`)))];
     }
     inputs = originalinputs;
-    if (_.isFunction(this.extendInputs)){
+    if (isFunction(this.extendInputs)){
       inputs = [[...inputs[0], ...this.extendInputs(...inputs[0])]];
     }
     const activatedInputs = inputs.map(r => (r.map(v => this.activation(v))));
-    const finalInputs = _.isFunction(this.normalizeInputs) ? this.normalizeInputs(inputs) : inputs;
+    const finalInputs = isFunction(this.normalizeInputs) ? this.normalizeInputs(inputs) : inputs;
     let mi = finalInputs[0].length + 1;
     //构造权重矩阵
     [...this.hls, this.outputCount].forEach((layerSize, index) => {
@@ -106,7 +115,7 @@ class BPNN {
     const sampleValues = this.generateTrainSample();
     const {ms} = this.expressions;
     const EValue = this.getEValue(sampleValues);
-    const args = _.flatten(_.flatten(_.flatten(ms)));
+    const args = flatten(flatten(flatten(ms)));
     if (EValue > this.minE){
       //后向传播
       const diffs = [];
@@ -120,7 +129,7 @@ class BPNN {
     } else {
       console.log(`accurate enough, no need to train with EValue = ${EValue}`);
     }
-    if (_.isFunction(this.onTrained)){
+    if (isFunction(this.onTrained)){
       this.onTrained(this, EValue);
     }
   }
@@ -140,7 +149,7 @@ class BPNN {
     while(accuracy < limit){
       this.train(trainTimes);
       accuracy = this.keepTesting(testTimes);
-      if (_.isFunction(onTrainInterval)){
+      if (isFunction(onTrainInterval)){
         onTrainInterval(accuracy);
       }
     }
@@ -169,13 +178,13 @@ class BPNN {
 
 
   persist(){
-    return _.flatten(_.flatten(_.flatten(this.expressions.ms))).map((item) => (item.value)).join(',');
+    return flatten(flatten(flatten(this.expressions.ms))).map((item) => (item.value)).join(',');
   }
 
   inject(msValues){
     const {ms} = this.expressions;
-    const values = msValues.split(',').map((item) => (_.toNumber(item)));
-    const args = _.flatten(_.flatten(_.flatten(ms)));
+    const values = msValues.split(',').map((item) => (toNumber(item)));
+    const args = flatten(flatten(flatten(ms)));
     if (values.length !== args.length){
       throw('inject fail, please check the length of your values');
     }
@@ -185,19 +194,19 @@ class BPNN {
   }
 
   trainSampleGeneratorCheck(){
-    if (!_.isFunction(this.generateTrainSample)){
+    if (!isFunction(this.generateTrainSample)){
       throw('you need to initilize the generateTrainSample with a method');
     }
   }
 
   testSampleGeneratorCheck(){
-    if (!_.isFunction(this.generateTestSample)){
+    if (!isFunction(this.generateTestSample)){
       throw('you need to initilize the generateTestSample with a method');
     }
   }
 
   judgeCheck(){
-    if (!_.isFunction(this.judge)){
+    if (!isFunction(this.judge)){
       throw('you need to initilize the judge with a method');
     }
   }
@@ -231,12 +240,10 @@ class BPNN {
     if (sample.length !== this.inputCount + this.outputCount){
       throw('wrong length of sample');
     }
-    const inputs = _.slice(sample, 0, this.inputCount);
-    const expects =_.slice(sample, this.inputCount, this.inputCount + this.outputCount);
+    const inputs = slice(sample, 0, this.inputCount);
+    const expects =slice(sample, this.inputCount, this.inputCount + this.outputCount);
     const values = this.getOutputs(inputs);
     return this.judge(values, expects);
   }
 
 }
-
-module.exports = BPNN;

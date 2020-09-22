@@ -1,5 +1,3 @@
-const timeUtils = require('./timeUtils');
+import * as timeUtilsFunc from './timeUtils';
 
-module.exports = {
-  timeUtils
-};
+export const timeUtils = timeUtilsFunc;

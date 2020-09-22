@@ -1,4 +1,4 @@
-const getInterval = (date1, date2) => {
+export const getInterval = (date1, date2) => {
 const date3= date2.getTime() - date1.getTime()  //时间差的毫秒数
 //计算出相差天数
 const days = Math.floor(date3 / (24 * 3600 * 1000))
@@ -13,7 +13,3 @@ const leave3 = leave2 % (60 * 1000)      //计算分钟数后剩余的毫秒数
 const seconds = Math.round(leave3 / 1000)
 return `${days}day ${hours}hours ${minutes}minutes ${seconds}seconds`;
 }
-
-module.exports = {
-  getInterval
-};

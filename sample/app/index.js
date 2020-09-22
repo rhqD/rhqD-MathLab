@@ -39,6 +39,14 @@ const iniData = [{
 
 Plotly.newPlot('plotlyHost', iniData, layout, {showSendToCloud: true});
 
+const presetSamples = {
+  xor: 'xor',
+  circle: 'circle',
+  doubleCircle: 'doubleCircle',
+  doubleBola: 'doubleBola',
+  ellipse: 'ellipse',
+};
+
 window.onload = () => {
   const canv = document.getElementById('canvas1');
   const ctx = canv.getContext('2d');
@@ -49,7 +57,10 @@ window.onload = () => {
     iniData[0].z = points;
     Plotly.redraw('plotlyHost');
   }
-  worker.postMessage({inr: 'start'});
+  worker.postMessage({
+    inr: 'start',
+    NN: presetSamples.ellipse,
+  });
 }
 
 

@@ -1,6 +1,8 @@
-const _ = require('lodash');
-const {functions: {mul, sum, sigmod}} = require('../rhqD/Node');
-const mm = (m1, m2) => {
+import set from 'lodash/set';
+import Node from "../rhqD/Node";
+
+const { functions: { mul, sum, sigmod } } = Node;
+export const mm = (m1, m2) => {
   const m1i = m1.length;
   const m1j = m1[0].length;
   const m2i = m2.length;
@@ -11,17 +13,17 @@ const mm = (m1, m2) => {
   const result = [];
   for(let i = 0; i < m1i; i++){
     for(let j = 0; j < m2j;j++){
-      _.set(result, [i, j], vm(IV(m1, i), JV(m2, j)));
+      set(result, [i, j], vm(IV(m1, i), JV(m2, j)));
     }
   }
   return result;
 }
 //取矩阵第i行向量（不分行向量或者列向量）
-const IV = (m, i) => (m[i]);
+export const IV = (m, i) => (m[i]);
 //取矩阵第列向量（不分行向量或者列向量）
-const JV = (m, j) => (m.map((item) => (item[j])));
+export const JV = (m, j) => (m.map((item) => (item[j])));
 
-const vm = (v1, v2) => {
+export const vm = (v1, v2) => {
   if (v1.length !== v2.length || v1.length === 0){
     throw('illegal vector size');
   }
@@ -29,12 +31,4 @@ const vm = (v1, v2) => {
   return sum(...subResults);
 }
 
-const activateM = (m, activation = sigmod) => (m.map((row) => (row.map((ele) => (activation(ele))))));
-
-module.exports = {
-  mm,
-  IV,
-  JV,
-  vm,
-  activateM
-}
+export const activateM = (m, activation = sigmod) => (m.map((row) => (row.map((ele) => (activation(ele))))));

@@ -643,4 +643,4 @@ Node.functions = {
   integral,
 }
 
-module.exports = Node;
+export default Node;
