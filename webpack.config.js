@@ -10,7 +10,8 @@ module.exports = {
     port: 3000,
     historyApiFallback: true,
     inline: true,
-    hot: true
+    hot: true,
+    disableHostCheck: true
   },
   entry: [
     'react-hot-loader/patch',
