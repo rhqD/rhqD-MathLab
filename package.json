@@ -66,6 +66,6 @@
     "transfer-webpack-plugin": "^0.1.4",
     "url-loader": "^0.5.7",
     "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.4"
+    "webpack-dev-server": "^3.1.11"
   }
 }
